@@ -1,0 +1,110 @@
+# Task ID: 4
+# Title: Create Database Schema for Core Entities
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Implement the database schema for all core entities as defined in the PRD, including User, Account, GA_Data_Source, Performance_Metrics, Page_Performance, Recommendation, and Landing_Page_Analysis tables.
+# Details:
+1. Create SQL migration scripts for all core entities:
+
+```sql
+-- Users table
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT UNIQUE NOT NULL,
+  role TEXT NOT NULL DEFAULT 'user',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  google_refresh_token TEXT
+);
+
+-- Accounts table
+CREATE TABLE accounts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  ga_property_id TEXT NOT NULL,
+  property_name TEXT NOT NULL,
+  timezone TEXT NOT NULL,
+  currency TEXT NOT NULL DEFAULT 'USD',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- GA Data Sources table
+CREATE TABLE ga_data_sources (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+  last_sync TIMESTAMP WITH TIME ZONE,
+  sync_status TEXT NOT NULL DEFAULT 'pending',
+  error_message TEXT
+);
+
+-- Performance Metrics table
+CREATE TABLE performance_metrics (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  sessions INTEGER NOT NULL DEFAULT 0,
+  users INTEGER NOT NULL DEFAULT 0,
+  new_users INTEGER NOT NULL DEFAULT 0,
+  bounce_rate NUMERIC(5,2) NOT NULL DEFAULT 0,
+  engagement_rate NUMERIC(5,2) NOT NULL DEFAULT 0,
+  avg_session_duration NUMERIC(10,2) NOT NULL DEFAULT 0,
+  source TEXT,
+  medium TEXT,
+  campaign TEXT,
+  UNIQUE(account_id, date, source, medium, campaign)
+);
+
+-- Page Performance table
+CREATE TABLE page_performance (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+  page_path TEXT NOT NULL,
+  date DATE NOT NULL,
+  pageviews INTEGER NOT NULL DEFAULT 0,
+  unique_pageviews INTEGER NOT NULL DEFAULT 0,
+  avg_time_on_page NUMERIC(10,2) NOT NULL DEFAULT 0,
+  bounce_rate NUMERIC(5,2) NOT NULL DEFAULT 0,
+  entrances INTEGER NOT NULL DEFAULT 0,
+  exits INTEGER NOT NULL DEFAULT 0,
+  UNIQUE(account_id, page_path, date)
+);
+
+-- Recommendations table
+CREATE TABLE recommendations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  description TEXT NOT NULL,
+  impact_score INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Landing Page Analysis table
+CREATE TABLE landing_page_analysis (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  url TEXT NOT NULL,
+  account_id UUID REFERENCES accounts(id) ON DELETE CASCADE,
+  speed_score INTEGER NOT NULL DEFAULT 0,
+  mobile_score INTEGER NOT NULL DEFAULT 0,
+  content_analysis JSONB NOT NULL DEFAULT '{}'::jsonb,
+  recommendations JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(account_id, url)
+);
+```
+
+2. Set up Row Level Security (RLS) policies for each table
+3. Create database indexes for performance optimization
+4. Implement database triggers for automatic timestamps
+5. Set up foreign key constraints and cascading deletes
+6. Create database functions for common operations
+7. Document the schema with entity relationship diagrams
+
+# Test Strategy:
+1. Verify all tables are created correctly in the database
+2. Test foreign key constraints with cascading deletes
+3. Validate RLS policies by testing with different user roles
+4. Test database indexes with performance queries
+5. Verify unique constraints work as expected
+6. Test database functions with sample data

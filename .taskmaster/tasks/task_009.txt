@@ -1,0 +1,43 @@
+# Task ID: 9
+# Title: Set up Firecrawl MCP for Landing Page Analysis
+# Status: pending
+# Dependencies: 2, 5
+# Priority: medium
+# Description: Implement the Firecrawl MCP service for crawling and analyzing landing pages to identify conversion optimization opportunities.
+# Details:
+1. Create a Firecrawl MCP service on Railway:
+   - Set up Node.js service with Puppeteer (latest version)
+   - Configure headless browser environment
+   - Implement crawling queue with Bull/BullMQ and Redis
+   - Set up rate limiting and respect for robots.txt
+2. Implement core crawling functions:
+   - crawlPage(url, options)
+   - analyzePage(pageContent, options)
+   - getPageSpeed(url)
+   - getMobileResponsiveness(url)
+   - extractPageContent(pageContent)
+3. Create content analysis algorithms:
+   - analyzeContentRelevance(pageContent, adKeywords)
+   - checkCallToAction(pageContent)
+   - analyzeFormFields(pageContent)
+   - checkMobileUsability(pageContent)
+   - analyzePageSpeed(performanceMetrics)
+4. Implement scoring system for landing pages
+5. Create recommendation generation based on analysis
+6. Set up webhook endpoints for crawl requests
+7. Implement crawl result storage in Supabase
+8. Add error handling and retry logic
+9. Create crawl scheduling system
+10. Implement bulk crawling capabilities
+
+# Test Strategy:
+1. Test page crawling with sample URLs
+2. Verify content analysis with different page types
+3. Test page speed analysis with fast and slow pages
+4. Validate mobile responsiveness checks
+5. Test recommendation generation with various page issues
+6. Verify webhook endpoints with test requests
+7. Test crawl result storage in Supabase
+8. Validate error handling with problematic URLs
+9. Test crawl scheduling system
+10. Verify bulk crawling with multiple URLs

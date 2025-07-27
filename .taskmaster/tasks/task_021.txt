@@ -1,0 +1,37 @@
+# Task ID: 21
+# Title: Implement Advanced Reporting System
+# Status: pending
+# Dependencies: 6, 8, 12
+# Priority: medium
+# Description: Create a comprehensive reporting system with customizable templates, scheduled reports, and export capabilities.
+# Details:
+1. Design reporting system architecture:
+   - Create reports table
+   - Implement report template system
+   - Add report scheduling functionality
+   - Create export formats (PDF, CSV, Excel)
+2. Implement ReportingService:
+   - createReport(userId, templateId, parameters)
+   - scheduleReport(reportId, schedule)
+   - generateReportFile(reportId, format)
+   - sendReportEmail(reportId, recipients)
+3. Create report builder UI
+4. Implement report template library
+5. Add report scheduling interface
+6. Create report export functionality
+7. Implement report sharing capabilities
+8. Add report analytics dashboard
+9. Create custom metric configuration
+10. Implement report notification system
+
+# Test Strategy:
+1. Test report creation with different templates
+2. Verify scheduling functionality with various schedules
+3. Test file generation in different formats
+4. Validate email delivery with sample reports
+5. Test report builder UI with custom configurations
+6. Verify template library with sample templates
+7. Test export functionality with large datasets
+8. Validate sharing capabilities with multiple recipients
+9. Test analytics dashboard with report metrics
+10. Verify notification system with scheduled reports

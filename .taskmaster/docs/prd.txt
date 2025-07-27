@@ -1,0 +1,516 @@
+# AI Google Ads Manager SaaS - Product Requirements Document
+
+## Overview
+
+The AI Google Ads Manager is an intelligent SaaS platform designed to automate and optimize Google Ads campaign management by replacing traditional human advertising agencies with AI-powered insights and recommendations. The platform leverages Google Analytics data via MCP (Model Context Protocol), performs deep landing page analysis, and provides actionable recommendations with implementation roadmaps.
+
+**Problem Statement:** Small to medium businesses struggle with the complexity and cost of Google Ads management, often paying expensive agency fees for suboptimal results. Manual campaign optimization is time-consuming and requires expertise that many businesses lack.
+
+**Target Audience:** 
+- Small to medium business owners running Google Ads
+- Marketing managers seeking to reduce agency costs
+- Digital marketing teams wanting AI-powered optimization
+- Agencies looking to scale their operations
+
+**Value Proposition:** Delivers agency-level Google Ads expertise at a fraction of the cost through AI automation, providing real-time optimization recommendations, comprehensive performance analysis, and step-by-step implementation guidance.
+
+## Core Features
+
+### 1. Intelligent Performance Dashboard
+**What it does:** Provides a comprehensive overview of all Google Ads campaigns with real-time metrics visualization and anomaly detection.
+
+**Why it's important:** Users need immediate visibility into campaign performance to make data-driven decisions quickly without diving through multiple Google interfaces.
+
+**How it works:** 
+- Connects to Google Analytics via MCP to pull real-time data
+- Aggregates metrics across all campaigns, ad groups, and keywords
+- Uses AI to identify performance anomalies and trends
+- Displays key metrics: spend, clicks, conversions, ROAS, CTR, CPA
+
+### 2. Campaign Deep Dive Analysis
+**What it does:** Enables granular analysis of Google Ads traffic within Google Analytics data, providing AI-powered insights on user behavior and conversion paths.
+
+**Why it's important:** Understanding how Google Ads traffic behaves on your website is crucial for optimization, but Google Analytics interface is complex and time-consuming to navigate.
+
+**How it works:**
+- Filters Google Analytics data to show only Google Ads traffic
+- Analyzes user behavior metrics: pages per session, bounce rate, session duration
+- Tracks conversion paths and drop-off points
+- Compares Google Ads traffic performance to other channels
+- Identifies top-performing landing pages from ads
+
+### 3. Landing Page Intelligence
+**What it does:** Automatically crawls and analyzes landing pages to identify conversion optimization opportunities.
+
+**Why it's important:** Landing page quality directly impacts Quality Score and conversion rates, but most advertisers lack the technical expertise to optimize effectively.
+
+**How it works:**
+- Uses Firecrawl MCP to analyze landing page content and structure
+- Evaluates page speed, mobile responsiveness, and content relevance
+- Checks alignment between ad copy and landing page messaging
+- Generates specific recommendations for improvement
+
+### 4. AI Recommendations Engine
+**What it does:** Provides actionable, prioritized recommendations for campaign optimization with expected impact projections.
+
+**Why it's important:** Users need expert-level guidance on what to change and why, replacing the strategic thinking typically provided by agencies.
+
+**How it works:**
+- Analyzes historical performance data to identify patterns
+- Uses LLM to generate contextual recommendations
+- Prioritizes actions based on potential impact and effort required
+- Provides detailed explanations for each recommendation
+
+### 5. Implementation Roadmap Generator
+**What it does:** Creates step-by-step action plans with calendar integration for executing optimization recommendations.
+
+**Why it's important:** Having great recommendations is useless without a clear plan for implementation - users need structured guidance on execution.
+
+**How it works:**
+- Converts recommendations into actionable tasks
+- Sequences tasks based on dependencies and priorities
+- Estimates time requirements and impact for each task
+- Integrates with calendar systems for scheduling
+
+### 6. Multi-Tenant Platform (Future Enhancement)
+**What it does:** Enables agencies and teams to manage multiple client accounts with role-based access control.
+
+**Why it's important:** Scaling the platform requires supporting multiple users and accounts while maintaining data security and separation.
+
+**How it works:**
+- Separate data schemas for each tenant
+- Role-based permissions (Admin, Manager, Viewer)
+- Client-specific dashboards and reports
+- Centralized billing and user management
+
+## User Experience
+
+### User Personas
+
+**1. Small Business Owner Sarah**
+- Runs a local e-commerce store
+- Limited marketing budget ($5,000/month)
+- No technical expertise in Google Ads
+- Needs simple, actionable guidance
+
+**2. Marketing Manager Mike**
+- Manages marketing for a mid-size SaaS company
+- Experienced with digital marketing
+- Seeks data-driven optimization
+- Values time-saving automation
+
+**3. Agency Account Manager Amy**
+- Manages 10-15 client accounts
+- Needs scalable solutions
+- Requires detailed reporting capabilities
+- Values white-label options
+
+### Key User Flows
+
+**1. Initial Setup Flow**
+- User signs up and connects Google account
+- OAuth authentication for Google Analytics/Ads
+- Platform automatically discovers and imports campaigns
+- Initial AI analysis runs in background
+- User receives first insights report
+
+**2. Daily Management Flow**
+- User logs into dashboard
+- Views performance anomalies and alerts
+- Reviews prioritized recommendations
+- Selects recommendations to implement
+- Receives implementation guide
+
+**3. Optimization Workflow**
+- User selects campaign for deep analysis
+- Reviews AI-generated insights
+- Approves recommended changes
+- Follows step-by-step implementation guide
+- Tracks impact of changes
+
+### UI/UX Considerations
+
+**Design Principles:**
+- Clean, intuitive interface with minimal learning curve
+- Mobile-responsive for on-the-go monitoring
+- Dark/light mode options
+- Customizable dashboard widgets
+
+**Key Interface Elements:**
+- Executive summary cards with trend indicators
+- Interactive charts with drill-down capabilities
+- Recommendation cards with impact scores
+- Progress tracking for implementations
+- Contextual help and tutorials
+
+## Technical Architecture
+
+### System Components
+
+**1. Backend Services (Railway)**
+- API Gateway (Node.js/Express or Python FastAPI)
+- Authentication Service (Supabase Auth)
+- Analytics Service (Google Analytics MCP integration)
+- AI Service (LLM integration for recommendations)
+- Crawler Service (Firecrawl MCP)
+- Task Queue (Bull/BullMQ with Redis on Railway)
+- WebSocket Server (Socket.io on Railway)
+
+**2. Frontend Application (Vercel)**
+- Next.js 14 with App Router
+- Server Components for improved performance
+- Tailwind CSS for styling
+- Tremor/Recharts for data visualization
+- Real-time updates via Supabase Realtime
+
+**3. Data Layer (Supabase)**
+- PostgreSQL for all relational data
+- Supabase Auth for authentication
+- Supabase Realtime for live updates
+- Supabase Storage for report files
+- Row Level Security (RLS) for multi-tenancy
+- Edge Functions for serverless compute
+
+### Data Models
+
+**Core Entities:**
+```
+User
+- id, email, role, created_at
+- google_refresh_token
+
+Account
+- id, user_id, ga_property_id
+- property_name, timezone, currency
+
+GA_Data_Source
+- id, account_id, last_sync
+- sync_status, error_message
+
+Performance_Metrics
+- id, account_id, date
+- sessions, users, new_users
+- bounce_rate, engagement_rate
+- avg_session_duration
+- source, medium, campaign
+
+Page_Performance
+- id, account_id, page_path, date
+- pageviews, unique_pageviews
+- avg_time_on_page, bounce_rate
+- entrances, exits
+
+Recommendation
+- id, account_id, type
+- description, impact_score
+- status, created_at
+
+Landing_Page_Analysis
+- url, account_id
+- speed_score, mobile_score
+- content_analysis, recommendations
+```
+
+### APIs and Integrations
+
+**External APIs:**
+- Google Analytics Data API v1 (Beta)
+- OpenAI/Claude API for LLM
+- Firecrawl API via MCP (Phase 3)
+- Google Ads API v15 (Phase 2 onwards)
+
+**Internal Architecture:**
+- Next.js API Routes for frontend-backend communication
+- tRPC for type-safe API calls between Vercel and Railway
+- Supabase Client for database operations
+- Supabase Realtime for WebSocket functionality
+
+**Service Communication:**
+- Railway internal networking for microservices
+- Redis on Railway for job queues and caching
+- Supabase PostgREST for direct database access
+- Webhook endpoints for external integrations
+
+### Infrastructure Requirements
+
+**Hosting Architecture:**
+- **Frontend:** Vercel (automatic scaling, edge network, preview deployments)
+- **Backend:** Railway (containerized services, automatic SSL, built-in Redis)
+- **Database:** Supabase (managed PostgreSQL, built-in auth, realtime subscriptions)
+- **CDN:** Vercel Edge Network (automatic for Next.js)
+
+**Key Infrastructure Benefits:**
+- Zero DevOps overhead with managed services
+- Automatic scaling on all platforms
+- Built-in CI/CD with Vercel and Railway
+- Global edge deployment via Vercel
+- Integrated monitoring and logging
+
+**Security:**
+- Supabase RLS (Row Level Security) for data isolation
+- Supabase Auth with OAuth providers
+- API rate limiting via Railway
+- Environment variables management
+- Automatic SSL on all services
+
+## Development Roadmap
+
+### Phase 1: Foundation & MVP (Local Development First)
+**Scope:** Basic functional platform with Google Analytics integration running locally
+
+**Features to build:**
+- User authentication system with Supabase Auth and Google OAuth
+- Google Analytics 4 Data API integration (no Google Ads API)
+- Basic performance dashboard showing GA4 metrics
+- Traffic source breakdown focusing on Google Ads traffic
+- Local development setup with hot reloading
+
+**Technical tasks:**
+- Set up Next.js 14 project with TypeScript and Tailwind
+- Configure local Supabase instance for development
+- Create local environment variables for Google OAuth
+- Implement Google Analytics Data API connection
+- Build dashboard with Tremor components
+- Create database schema for storing GA4 data
+- Implement data fetching and caching logic
+
+**Local Development Focus:**
+- Use Supabase CLI for local database
+- Mock data for testing without API calls
+- Local environment configuration
+- Component library setup
+- Testing framework setup
+
+**Deployment (End of Phase 1):**
+- Deploy frontend to Vercel
+- Deploy MCP server to Railway
+- Connect to Supabase cloud instance
+- Set up production environment variables
+
+### Phase 2: Intelligence Layer & Google Ads Integration
+**Scope:** Add AI-powered insights and Google Ads API integration
+
+**Features to build:**
+- Google Ads API integration for campaign data
+- AI recommendations engine combining GA4 and Google Ads data
+- Performance anomaly detection
+- Campaign-level analysis with cost data
+- ROI and ROAS calculations
+
+**Technical tasks:**
+- Integrate Google Ads API
+- Create data correlation between GA4 and Google Ads
+- Implement recommendation algorithms
+- Build unified dashboard showing both data sources
+- Add cost analysis features
+
+### Phase 3: Landing Page Analysis
+**Scope:** Integrate landing page intelligence
+
+**Features to build:**
+- Firecrawl MCP integration
+- Landing page scoring system
+- Content alignment analysis
+- Mobile responsiveness checker
+- Page speed insights
+
+**Technical tasks:**
+- Set up Firecrawl MCP server
+- Implement crawling queue system
+- Create analysis algorithms
+- Build landing page report UI
+- Add bulk analysis capabilities
+
+### Phase 4: Implementation Tools
+**Scope:** Help users execute recommendations
+
+**Features to build:**
+- Implementation roadmap generator
+- Task management system
+- Calendar integration
+- Progress tracking
+- Impact measurement
+
+**Technical tasks:**
+- Design task management schema
+- Build roadmap generation logic
+- Implement calendar API integration
+- Create progress tracking UI
+- Add impact analytics
+
+### Phase 5: Multi-Tenancy & Scale
+**Scope:** Enterprise features and scalability
+
+**Features to build:**
+- Multi-tenant architecture
+- Role-based access control
+- Team collaboration features
+- White-label options
+- Advanced reporting
+
+**Technical tasks:**
+- Implement tenant isolation
+- Add permission system
+- Build team management UI
+- Create white-label configuration
+- Optimize for scale
+
+### Phase 6: Advanced Features
+**Scope:** Differentiation and competitive advantage
+
+**Features to build:**
+- Competitor analysis
+- Budget optimization AI
+- Automated bid management
+- Custom alert system
+- API for third-party integrations
+
+**Technical tasks:**
+- Build competitor tracking system
+- Implement optimization algorithms
+- Create automation framework
+- Design alert engine
+- Develop public API
+
+## Logical Dependency Chain
+
+### Foundation (Must be built first)
+1. **Local Development Environment** - Everything starts with local setup
+2. **Authentication System** - Secure user access with Google OAuth
+3. **Database Schema** - GA4-focused data structure
+4. **Google Analytics Data API** - Core data source for website metrics
+5. **Basic Dashboard** - First visible feature showing GA4 data
+
+### Deployment Infrastructure (End of Phase 1)
+1. **Frontend to Vercel** - Deploy the Next.js app
+2. **MCP Server to Railway** - Deploy the Google Analytics integration
+3. **Database to Supabase Cloud** - Move from local to cloud
+4. **Environment Configuration** - Production secrets and API keys
+
+### Core Functionality (Builds on foundation)
+1. **Performance Dashboard** - First visible feature users can interact with
+2. **Campaign List View** - Enables navigation between campaigns
+3. **Basic Metrics Display** - Shows value immediately to users
+
+### Intelligence Features (Requires core functionality)
+1. **AI Integration** - Needs data to analyze
+2. **Recommendations Engine** - Depends on AI and performance data
+3. **Deep Dive Analysis** - Requires both data and AI capabilities
+
+### Enhancement Features (Can be built in parallel)
+1. **Landing Page Analysis** - Independent module using Firecrawl
+2. **Reporting System** - Can be added to existing data
+3. **Task Management** - Enhances recommendations but not required
+
+### Scale Features (Requires stable platform)
+1. **Multi-tenancy** - Major architectural change, needs stable base
+2. **Team Features** - Builds on multi-tenancy
+3. **API Development** - Requires mature, stable platform
+
+## Risks and Mitigations
+
+### Technical Challenges
+
+**Risk:** Google API rate limits affecting real-time data
+- **Mitigation:** Implement intelligent caching and batch processing
+- **Mitigation:** Use webhooks where available
+- **Mitigation:** Design for graceful degradation
+
+**Risk:** LLM costs becoming prohibitive at scale
+- **Mitigation:** Implement smart caching for similar queries
+- **Mitigation:** Use smaller models for simple tasks
+- **Mitigation:** Batch process recommendations during off-peak
+
+**Risk:** Landing page crawling being blocked
+- **Mitigation:** Respect robots.txt and rate limits
+- **Mitigation:** Use rotating user agents
+- **Mitigation:** Implement fallback analysis methods
+
+### MVP Definition Risks
+
+**Risk:** Building too much for initial release
+- **Mitigation:** Focus on core dashboard and basic recommendations
+- **Mitigation:** Use customer feedback to prioritize features
+- **Mitigation:** Release early beta to test assumptions
+
+**Risk:** Not providing enough value in MVP
+- **Mitigation:** Ensure AI recommendations work well even with limited features
+- **Mitigation:** Focus on one killer feature (e.g., anomaly detection)
+- **Mitigation:** Provide clear roadmap of upcoming features
+
+### Resource Constraints
+
+**Risk:** Development taking longer than expected
+- **Mitigation:** Hire experienced developers familiar with stack
+- **Mitigation:** Use existing libraries and frameworks
+- **Mitigation:** Consider outsourcing non-core components
+
+**Risk:** Scaling infrastructure costs
+- **Mitigation:** Design for efficient resource usage from start
+- **Mitigation:** Implement usage-based pricing model
+- **Mitigation:** Use serverless where appropriate
+
+## Appendix
+
+### Research Findings
+
+**Market Analysis:**
+- Google Ads management market worth $150B annually
+- Average SMB spends $9,000-$10,000/month on Google Ads
+- 72% of businesses find Google Ads interface too complex
+- Agencies charge 10-20% management fees
+
+**Competitor Analysis:**
+- Optmyzr: Strong rules engine but weak AI
+- WordStream: Good for beginners but limited depth
+- Adalysis: Comprehensive but expensive and complex
+
+### Technical Specifications
+
+**Platform Stack:**
+- **Frontend (Vercel):** Next.js 14, TypeScript, Tailwind CSS, Tremor
+- **Backend (Railway):** Node.js/Python services, MCP servers, Redis
+- **Database (Supabase):** PostgreSQL, Auth, Realtime, Storage, Edge Functions
+
+**MCP Implementation:**
+- Deployed as separate services on Railway
+- Uses Model Context Protocol for tool integration
+- Enables seamless Google Analytics data access
+- Provides real-time data streaming via Supabase Realtime
+- Supports custom tool development
+
+**Performance Requirements:**
+- Vercel Edge Network ensures < 100ms response globally
+- Dashboard load time < 2 seconds (Server Components)
+- Real-time data delay < 30 seconds via Supabase
+- Railway auto-scaling for 10,000+ concurrent users
+- 99.9% uptime with Vercel and Railway SLAs
+
+**Security Specifications:**
+- Supabase RLS for tenant isolation
+- SOC 2 Type II compliance (Supabase certified)
+- GDPR compliant with Supabase data residency
+- End-to-end encryption via HTTPS
+- Secure environment variables in Vercel/Railway
+
+### Integration Details
+
+**Google Analytics 4 Integration (Phase 1 Focus):**
+- Uses GA4 Data API (Beta) for all metrics
+- Requires analytics.readonly scope
+- No Google Ads API in Phase 1
+- Focuses on website behavior metrics
+- Filters to analyze Google Ads traffic source
+- Implements incremental data fetching
+- Handles sampling for large datasets
+
+**Google Ads API Integration (Phase 2+):**
+- Delayed until Phase 2
+- Will correlate with existing GA4 data
+- Adds cost and campaign management features
+
+**Firecrawl MCP Integration:**
+- Crawls up to 5 pages per domain
+- Extracts structured data
+- Analyzes page performance metrics
+- Respects crawl delays

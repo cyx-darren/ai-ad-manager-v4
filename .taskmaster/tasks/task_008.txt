@@ -1,0 +1,33 @@
+# Task ID: 8
+# Title: Create Deep Dive Analysis View
+# Status: pending
+# Dependencies: 5, 6
+# Priority: medium
+# Description: Implement a detailed analysis view that provides granular insights into Google Ads traffic behavior, conversion paths, and user engagement metrics.
+# Details:
+1. Create DeepDiveAnalysis component with the following sections:
+   - User Behavior Metrics (pages per session, bounce rate, session duration)
+   - Conversion Path Analysis
+   - Drop-off Point Visualization
+   - Channel Comparison
+   - Landing Page Performance
+2. Implement data fetching for detailed GA4 metrics
+3. Create funnel visualization for conversion paths
+4. Implement heatmap for drop-off points
+5. Create comparison charts for channel performance
+6. Add landing page performance table with metrics
+7. Implement segment analysis for different user groups
+8. Create device breakdown visualization
+9. Add geographic performance map
+10. Implement time-of-day analysis
+
+# Test Strategy:
+1. Test deep dive analysis rendering with mock data
+2. Verify funnel visualization with sample conversion paths
+3. Test heatmap rendering with drop-off data
+4. Validate channel comparison charts
+5. Test landing page performance table sorting and filtering
+6. Verify segment analysis with different user groups
+7. Test device breakdown visualization
+8. Validate geographic map rendering
+9. Test time-of-day analysis with sample data

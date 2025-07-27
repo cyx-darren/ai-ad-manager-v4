@@ -1,0 +1,37 @@
+# Task ID: 20
+# Title: Implement White-Label Customization
+# Status: pending
+# Dependencies: 17, 18
+# Priority: low
+# Description: Create white-label capabilities allowing agencies to customize the platform with their own branding, colors, and domain.
+# Details:
+1. Design white-label configuration system:
+   - Create white_label_config table
+   - Implement theme customization
+   - Add logo upload functionality
+   - Create custom domain configuration
+2. Implement WhiteLabelService:
+   - updateBranding(tenantId, brandingOptions)
+   - uploadLogo(tenantId, logoFile)
+   - setCustomDomain(tenantId, domain)
+   - getWhiteLabelConfig(tenantId)
+3. Create theme customization UI
+4. Implement logo upload interface
+5. Add custom domain configuration
+6. Create email template customization
+7. Implement report branding
+8. Add custom login page
+9. Create white-label preview functionality
+10. Implement white-label analytics
+
+# Test Strategy:
+1. Test theme customization with different color schemes
+2. Verify logo upload with various image formats
+3. Test custom domain configuration
+4. Validate email template customization
+5. Test report branding with custom logos
+6. Verify custom login page with tenant branding
+7. Test white-label preview functionality
+8. Validate white-label analytics with tenant metrics
+9. Test theme switching with different configurations
+10. Verify branding persistence across sessions

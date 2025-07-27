@@ -1,0 +1,39 @@
+# Task ID: 6
+# Title: Build Basic Performance Dashboard UI
+# Status: pending
+# Dependencies: 1, 5
+# Priority: high
+# Description: Create the main performance dashboard UI that displays key Google Analytics metrics in an intuitive and visually appealing way, focusing on Google Ads traffic.
+# Details:
+1. Create dashboard layout components using Tailwind CSS and Tremor:
+   - DashboardLayout component with sidebar navigation
+   - MetricCard component for displaying individual metrics
+   - ChartContainer component for visualizations
+   - AlertBanner component for notifications
+2. Implement data visualization components with Tremor:
+   - LineChart for trend data
+   - BarChart for comparison data
+   - DonutChart for traffic source breakdown
+   - TableComponent for detailed metrics
+3. Create dashboard widgets:
+   - TrafficOverviewWidget
+   - ConversionWidget
+   - TopPagesWidget
+   - TrafficSourceWidget (with Google Ads filter)
+4. Implement dashboard state management with React Context
+5. Create date range selector component
+6. Implement responsive design for mobile and desktop
+7. Add loading states and skeleton loaders
+8. Implement error handling for failed data fetching
+9. Create dashboard settings panel for customization
+10. Add dashboard refresh functionality
+
+# Test Strategy:
+1. Test dashboard rendering with mock data
+2. Verify responsive design on different screen sizes
+3. Test chart components with various data scenarios
+4. Validate date range selector functionality
+5. Test loading states and skeleton loaders
+6. Verify error handling with simulated API failures
+7. Test dashboard settings customization
+8. Validate dashboard refresh functionality

@@ -1,0 +1,35 @@
+# Task ID: 5
+# Title: Implement Google Analytics 4 Data API Integration
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Create a service to connect to the Google Analytics 4 Data API to fetch website analytics data, focusing on traffic sources, user behavior, and conversion metrics.
+# Details:
+1. Create a Google Analytics MCP (Model Context Protocol) service:
+   - Set up a Node.js service on Railway
+   - Install required packages: `@google-analytics/data` (latest version)
+   - Configure authentication with Google OAuth 2.0
+2. Implement core GA4 data fetching functions:
+   - getSessionMetrics(propertyId, dateRange)
+   - getUserMetrics(propertyId, dateRange)
+   - getTrafficSourceBreakdown(propertyId, dateRange)
+   - getPagePerformance(propertyId, dateRange)
+   - getConversionMetrics(propertyId, dateRange)
+3. Create data transformation utilities to normalize GA4 data
+4. Implement caching layer with Redis on Railway
+5. Set up error handling and retry logic for API failures
+6. Create rate limiting to respect Google API quotas
+7. Implement incremental data fetching for large datasets
+8. Handle sampling issues with appropriate warnings
+9. Create webhook endpoints for data refresh triggers
+10. Document API endpoints and data formats
+
+# Test Strategy:
+1. Test connection to Google Analytics 4 Data API
+2. Verify data fetching for all metrics
+3. Test data transformation with sample responses
+4. Validate caching mechanism with repeated requests
+5. Test error handling with simulated API failures
+6. Verify rate limiting prevents quota exhaustion
+7. Test incremental data fetching with large date ranges
+8. Validate webhook endpoints with test triggers

@@ -1,0 +1,56 @@
+# Task ID: 24
+# Title: Configure Supabase Cloud Instance
+# Status: pending
+# Dependencies: 2, 4
+# Priority: high
+# Description: Set up and configure the production Supabase instance with proper security, backups, and performance optimizations.
+# Details:
+1. Create Supabase project in cloud:
+   - Select appropriate region for target audience
+   - Configure project settings
+   - Set up database password
+2. Migrate database schema from local development:
+   - Export schema from local Supabase
+   - Import schema to cloud instance
+   - Verify all tables and relationships
+3. Configure authentication settings:
+   - Set up Google OAuth provider
+   - Configure email templates
+   - Set up password policies
+4. Implement Row Level Security (RLS) policies:
+   - Apply tenant isolation policies
+   - Set up role-based access policies
+   - Test policy effectiveness
+5. Configure Supabase Storage:
+   - Create buckets for different file types
+   - Set up access policies
+   - Configure CORS settings
+6. Set up Supabase Edge Functions:
+   - Deploy webhook handlers
+   - Create scheduled functions
+   - Implement utility functions
+7. Configure Supabase Realtime:
+   - Set up publication/subscription channels
+   - Configure broadcast options
+   - Test real-time updates
+8. Implement database optimizations:
+   - Create indexes for common queries
+   - Set up materialized views for reporting
+   - Configure query caching
+9. Set up backup and disaster recovery:
+   - Configure daily backups
+   - Test restore procedures
+   - Document recovery process
+10. Implement monitoring and alerting
+
+# Test Strategy:
+1. Test database connection from application
+2. Verify authentication with Google OAuth
+3. Test RLS policies with different user roles
+4. Validate storage access with various file types
+5. Test Edge Functions with sample requests
+6. Verify Realtime updates with WebSocket connections
+7. Test query performance with large datasets
+8. Validate backup and restore procedures
+9. Test monitoring alerts with simulated issues
+10. Verify database migrations with schema changes

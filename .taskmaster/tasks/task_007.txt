@@ -1,0 +1,32 @@
+# Task ID: 7
+# Title: Implement Campaign List View
+# Status: pending
+# Dependencies: 5, 6
+# Priority: medium
+# Description: Create a view that lists all Google Ads campaigns with key performance metrics, allowing users to navigate between campaigns and see high-level performance data.
+# Details:
+1. Create CampaignList component with the following features:
+   - Sortable and filterable table of campaigns
+   - Key metrics display (clicks, impressions, CTR, conversions)
+   - Status indicators for campaign health
+   - Search functionality for finding campaigns
+   - Pagination for large campaign lists
+2. Implement campaign data fetching from GA4 API
+3. Create campaign card component with summary metrics
+4. Add campaign status indicators (performing well, needs attention, critical)
+5. Implement campaign filtering by date range
+6. Add campaign sorting by various metrics
+7. Create campaign search functionality
+8. Implement campaign pagination for large accounts
+9. Add campaign type filtering (Search, Display, Video, etc.)
+10. Create campaign comparison view
+
+# Test Strategy:
+1. Test campaign list rendering with mock data
+2. Verify sorting and filtering functionality
+3. Test campaign search with various queries
+4. Validate pagination with large datasets
+5. Test campaign status indicators with different performance scenarios
+6. Verify campaign type filtering
+7. Test campaign comparison view
+8. Validate responsive design on different screen sizes

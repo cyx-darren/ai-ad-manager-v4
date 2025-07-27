@@ -1,0 +1,27 @@
+# Task ID: 2
+# Title: Set up Local Supabase Instance for Development
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Configure a local Supabase instance for development to provide authentication, database, and real-time functionality without depending on cloud resources during development.
+# Details:
+1. Install Supabase CLI: `npm install -g supabase`
+2. Initialize local Supabase: `supabase init`
+3. Start local Supabase: `supabase start`
+4. Create database schema based on the PRD data models (User, Account, GA_Data_Source, etc.)
+5. Set up Row Level Security (RLS) policies for multi-tenancy
+6. Configure Supabase Auth with Google OAuth provider
+7. Set up Supabase Realtime channels for WebSocket functionality
+8. Create seed data for development testing
+9. Install Supabase JS client: `npm install @supabase/supabase-js`
+10. Create a database helper utility for common operations
+11. Set up database migration scripts
+12. Document local database schema and access patterns
+
+# Test Strategy:
+1. Verify connection to local Supabase instance
+2. Test CRUD operations on all tables
+3. Validate RLS policies by testing with different user roles
+4. Ensure Supabase Realtime subscriptions work correctly
+5. Verify database migrations run successfully
+6. Test seed data population

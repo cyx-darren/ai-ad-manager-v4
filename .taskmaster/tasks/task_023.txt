@@ -1,0 +1,44 @@
+# Task ID: 23
+# Title: Deploy Backend Services to Railway
+# Status: pending
+# Dependencies: 5, 9, 11
+# Priority: high
+# Description: Configure and deploy the backend services to Railway with proper environment variables, scaling, and monitoring.
+# Details:
+1. Prepare backend services for production deployment:
+   - Create Dockerfiles for each service
+   - Configure environment variables
+   - Set up logging with Pino
+   - Implement health check endpoints
+2. Create Railway project and connect to repository
+3. Configure service deployments:
+   - Google Analytics MCP service
+   - Firecrawl MCP service
+   - AI Recommendations service
+   - Task Queue service
+   - WebSocket server
+4. Set up environment variables in Railway:
+   - SUPABASE_URL
+   - SUPABASE_SERVICE_KEY
+   - GOOGLE_CLIENT_ID
+   - GOOGLE_CLIENT_SECRET
+   - OPENAI_API_KEY
+   - Other service credentials
+5. Configure Railway Redis instance
+6. Set up automatic scaling rules
+7. Implement monitoring and alerting
+8. Configure custom domains for API endpoints
+9. Set up CI/CD pipeline with GitHub Actions
+10. Create backup and disaster recovery plan
+
+# Test Strategy:
+1. Test services locally with Docker before deployment
+2. Verify environment variables are correctly set
+3. Test health check endpoints
+4. Validate Redis connection
+5. Test automatic scaling with load testing
+6. Verify monitoring alerts with simulated errors
+7. Test custom domain configuration
+8. Validate CI/CD pipeline with sample changes
+9. Test backup and restore procedures
+10. Verify service communication with end-to-end tests

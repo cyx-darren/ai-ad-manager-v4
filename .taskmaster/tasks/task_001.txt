@@ -1,0 +1,57 @@
+# Task ID: 1
+# Title: Set up Next.js 14 Project with TypeScript and Tailwind CSS
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Initialize the project repository with Next.js 14, TypeScript, and Tailwind CSS for the frontend application that will be deployed to Vercel.
+# Details:
+Create a new Next.js 14 project using the App Router architecture:
+1. Run `npx create-next-app@latest ai-google-ads-manager --typescript --tailwind --eslint --app`
+2. Set up project structure with appropriate folders for components, hooks, utils, and types
+3. Configure Tailwind CSS with custom theme settings for the application
+4. Set up ESLint and Prettier for code quality
+5. Initialize Git repository with proper .gitignore
+6. Configure TypeScript with strict mode enabled
+7. Set up environment variables structure (.env.local, .env.development)
+8. Install Tremor (latest version, currently v3.x) for data visualization: `npm install @tremor/react`
+9. Set up Husky for pre-commit hooks
+10. Create basic folder structure for the app router architecture
+
+# Test Strategy:
+1. Verify that the Next.js application builds successfully with `npm run build`
+2. Ensure hot reloading works correctly in development mode
+3. Validate TypeScript configuration with `npm run type-check`
+4. Test Tailwind CSS configuration by creating a sample component
+5. Verify ESLint runs without errors using `npm run lint`
+
+# Subtasks:
+## 1. Initialize Next.js 14 Project with TypeScript, Tailwind CSS, and App Router [pending]
+### Dependencies: None
+### Description: Create the basic project scaffold
+### Details:
+Run npx create-next-app@latest ai-google-ads-manager --typescript --tailwind --eslint --app
+
+## 2. Organize Project Structure and Configure TypeScript [pending]
+### Dependencies: 1.1
+### Description: Set up scalable folder structure and enable strict TypeScript
+### Details:
+Create folders for components, hooks, utils, types, config, lib, styles. Enable strict mode in tsconfig.json
+
+## 3. Configure Tailwind CSS with Custom Theme [pending]
+### Dependencies: 1.1, 1.2
+### Description: Customize Tailwind for the application's design requirements
+### Details:
+Edit tailwind.config.js with custom theme, colors, and global styles
+
+## 4. Set Up Code Quality Tools: ESLint, Prettier, and Husky [pending]
+### Dependencies: 1.1, 1.2
+### Description: Configure code linting, formatting, and pre-commit hooks
+### Details:
+Configure ESLint/Prettier rules, add Husky for pre-commit hooks, update .gitignore
+
+## 5. Install Additional Dependencies and Set Up Environment Variables [pending]
+### Dependencies: 1.1, 1.2
+### Description: Install Tremor and configure environment files
+### Details:
+Run npm install @tremor/react, create .env.local and .env.development files
+
