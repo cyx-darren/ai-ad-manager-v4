@@ -154,9 +154,9 @@ export function DonutChart({
         </div>
       )}
       
-      <div className={`flex ${showLegend ? 'flex-col lg:flex-row' : 'justify-center'} gap-6 ${height}`}>
+      <div className={`flex ${showLegend ? 'flex-col lg:flex-row' : 'justify-center'} gap-4 lg:gap-6 min-h-[300px] sm:min-h-[320px] lg:min-h-[350px] h-full`}>
         {/* Donut Chart */}
-        <div className={`${showLegend ? 'lg:w-2/3' : 'w-full'} flex justify-center`}>
+        <div className={`${showLegend ? 'lg:w-2/3' : 'w-full'} flex items-center justify-center`}>
           <div className="relative tremor-donut-container">
             <TremorDonutChart
               data={formattedData}
@@ -207,7 +207,7 @@ export function DonutChart({
             />
             
             {/* Center Content */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+            <div className="absolute top-0 left-0 w-72 h-72 flex items-center justify-center pointer-events-none z-20">
               {centerContent || (
                 <div className="text-center donut-chart-center-override">
                   <div className="text-2xl font-bold text-gray-900">
@@ -224,7 +224,7 @@ export function DonutChart({
         
         {/* Legend */}
         {showLegend && (
-          <div className="lg:w-1/3 flex flex-col justify-center">
+          <div className="lg:w-1/3 flex flex-col justify-center min-h-0">
             <div className="space-y-3">
               {formattedData.map((item, index) => (
                 <div key={item.name} className="flex items-center justify-between gap-4">

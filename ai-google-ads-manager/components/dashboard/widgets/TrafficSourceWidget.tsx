@@ -201,10 +201,10 @@ export const TrafficSourceWidget: React.FC<TrafficSourceWidgetProps> = ({
           title={`Traffic Distribution ${filterMode === 'all' ? '' : `(${filterMode.replace('-', ' ')})`}`}
           description={`${totalSessions.toLocaleString()} total sessions`}
           loading={loading}
+          className="min-h-[350px] sm:min-h-[400px] lg:min-h-[450px]"
         >
           <TrafficSourceDonutChart
             data={filteredData}
-            height="h-80"
             showLegend={true}
             showTooltip={true}
             showLabels={true}

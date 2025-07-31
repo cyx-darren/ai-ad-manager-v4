@@ -105,7 +105,7 @@ export function ChartContainer({
   }
 
   return (
-    <div className={`bg-white shadow rounded-lg ${className}`}>
+    <div className={`bg-white shadow rounded-lg flex flex-col ${className}`}>
       <div className="px-6 py-5 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex-1">
@@ -140,7 +140,7 @@ export function ChartContainer({
         </div>
       </div>
       
-      <div className={`px-6 py-6 ${height}`}>
+      <div className="px-6 py-6 flex-1">
         {children}
       </div>
     </div>
