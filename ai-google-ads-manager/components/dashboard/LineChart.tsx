@@ -74,7 +74,6 @@ export function LineChart({
 }: LineChartProps) {
   // Format data for Tremor LineChart
   const formattedData = data.map(point => ({
-    date: point.date,
     ...point
   }))
 

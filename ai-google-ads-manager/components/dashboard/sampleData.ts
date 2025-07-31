@@ -485,7 +485,7 @@ export function generateRandomVariation<T extends Record<string, any>>(
     Object.keys(newItem).forEach(key => {
       if (typeof newItem[key] === 'number' && key !== 'percentage') {
         const variation = 1 + (Math.random() - 0.5) * 2 * variationPercent
-        newItem[key] = Math.round(newItem[key] * variation)
+        ;(newItem as any)[key] = Math.round((newItem as any)[key] * variation)
       }
     })
     

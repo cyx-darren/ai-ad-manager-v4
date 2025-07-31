@@ -339,15 +339,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         endDate: state.dateRange.endDate
       })
       
-      console.log('🔍 DEBUG: Traffic sources received:', {
-        data: trafficSources,
-        isArray: Array.isArray(trafficSources),
-        type: typeof trafficSources,
-        length: trafficSources?.length
-      })
-      
       setData('trafficSources', trafficSources)
-      console.log('✅ Traffic source data fetched successfully')
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch traffic source data'
       setError('trafficSources', errorMessage)

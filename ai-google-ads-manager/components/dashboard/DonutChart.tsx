@@ -3,6 +3,7 @@
 import React from 'react'
 import { DonutChart as TremorDonutChart, Card, Title, Text, Legend } from '@tremor/react'
 import { getHexColor, TREMOR_COLOR_HEX } from '../../lib/tremor-utils'
+import { DonutChartSkeleton } from '../ui/SkeletonLoaders'
 
 // Types for GA4/Google Ads percentage/proportion data
 export interface DonutChartDataPoint {
@@ -28,6 +29,8 @@ export interface DonutChartProps {
   className?: string
   showAnimation?: boolean
   centerContent?: React.ReactNode
+  loading?: boolean
+  loadingHeight?: string
 }
 
 // Vibrant SaaS color palette for donut charts - matching homepage theme
@@ -92,8 +95,14 @@ export function DonutChart({
   formatPercentage,
   className = '',
   showAnimation = true,
-  centerContent
+  centerContent,
+  loading = false,
+  loadingHeight
 }: DonutChartProps) {
+  // Show skeleton loader when loading
+  if (loading) {
+    return <DonutChartSkeleton height={loadingHeight || height} />
+  }
   // Calculate total and percentages
   const total = data.reduce((sum, item) => sum + item.value, 0)
   

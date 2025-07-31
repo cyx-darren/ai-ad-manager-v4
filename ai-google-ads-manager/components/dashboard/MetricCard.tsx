@@ -6,6 +6,7 @@ import {
   ArrowDownIcon,
   InformationCircleIcon
 } from '@heroicons/react/24/outline'
+import { MetricCardSkeleton } from '../ui/SkeletonLoaders'
 
 export interface MetricCardProps {
   title: string
@@ -37,20 +38,7 @@ export function MetricCard({
   const isClickable = !!onClick
 
   if (loading) {
-    return (
-      <div className={`bg-white overflow-hidden shadow rounded-lg p-6 ${className}`}>
-        <div className="animate-pulse">
-          <div className="flex items-center">
-            <div className="flex-1">
-              <div className="h-4 bg-gray-200 rounded w-24"></div>
-              <div className="mt-2 h-8 bg-gray-200 rounded w-16"></div>
-            </div>
-            <div className="h-8 w-8 bg-gray-200 rounded"></div>
-          </div>
-          <div className="mt-4 h-3 bg-gray-200 rounded w-20"></div>
-        </div>
-      </div>
-    )
+    return <MetricCardSkeleton />
   }
 
   if (error) {

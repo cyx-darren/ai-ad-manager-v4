@@ -344,21 +344,10 @@ export class DashboardDataService {
         authToken
       )
 
-      console.log('🔍 DEBUG: API response for traffic sources:', {
-        success: response.success,
-        data: response.data,
-        dataIsArray: Array.isArray(response.data),
-        dataType: typeof response.data,
-        fullResponse: response
-      })
+
 
       if (response.success && response.data) {
-        console.log('✅ DashboardDataService returning extracted data:', {
-          data: response.data,
-          isArray: Array.isArray(response.data),
-          type: typeof response.data,
-          length: response.data?.length
-        })
+
         return response.data
       }
       

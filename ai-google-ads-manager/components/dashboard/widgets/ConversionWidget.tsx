@@ -25,12 +25,12 @@ export const ConversionWidget: React.FC<ConversionWidgetProps> = ({
     if (!data || !Array.isArray(data) || data.length === 0) {
       return {
         conversions: 0,
-        conversionsChange: 0,
+        conversionsChange: { value: 0, type: 'increase', timeframe: '7 days' },
         conversionRate: 0,
-        conversionRateChange: 0,
+        conversionRateChange: { value: 0, type: 'increase', timeframe: '7 days' },
         costPerConversion: 0,
         revenue: 0,
-        revenueChange: 0
+        revenueChange: { value: 0, type: 'increase', timeframe: '7 days' }
       }
     }
     
@@ -57,12 +57,24 @@ export const ConversionWidget: React.FC<ConversionWidgetProps> = ({
 
     return {
       conversions: currentConversions,
-      conversionsChange,
+      conversionsChange: {
+        value: Math.abs(conversionsChange),
+        type: conversionsChange >= 0 ? 'increase' : 'decrease',
+        timeframe: '7 days'
+      },
       conversionRate: currentConversionRate,
-      conversionRateChange,
+      conversionRateChange: {
+        value: Math.abs(conversionRateChange),
+        type: conversionRateChange >= 0 ? 'increase' : 'decrease',
+        timeframe: '7 days'
+      },
       costPerConversion,
       revenue: currentRevenue,
-      revenueChange
+      revenueChange: {
+        value: Math.abs(revenueChange),
+        type: revenueChange >= 0 ? 'increase' : 'decrease',
+        timeframe: '7 days'
+      }
     }
   }, [data])
 

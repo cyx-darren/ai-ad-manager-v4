@@ -74,7 +74,6 @@ export async function GET(request: NextRequest) {
         email_change_sent_at: user.email_change_sent_at,
         new_email: user.new_email,
         phone: user.phone,
-        phone_change_sent_at: user.phone_change_sent_at,
         new_phone: user.new_phone,
         identities: user.identities
       },

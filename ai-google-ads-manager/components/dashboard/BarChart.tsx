@@ -3,6 +3,7 @@
 import React from 'react'
 import { BarChart as TremorBarChart, Card, Title, Text } from '@tremor/react'
 import { getTremorColor, TREMOR_COLOR_HEX, type TremorColor } from '@/lib/tremor-utils'
+import { ChartSkeleton } from '../ui/SkeletonLoaders'
 import '@/styles/charts.css'
 
 // Types for GA4/Google Ads comparative data
@@ -36,6 +37,8 @@ export interface BarChartProps {
   className?: string
   layout?: 'vertical' | 'horizontal'
   maxLabelLength?: number // Maximum characters for labels
+  loading?: boolean
+  loadingHeight?: string
 }
 
 // Default color palette for different metric types - vibrant colors
@@ -97,8 +100,14 @@ export function BarChart({
   formatValue,
   className = '',
   layout = 'vertical',
-  maxLabelLength = 30
+  maxLabelLength = 30,
+  loading = false,
+  loadingHeight
 }: BarChartProps) {
+  // Show skeleton loader when loading
+  if (loading) {
+    return <ChartSkeleton height={loadingHeight || height} />
+  }
   // Sort and limit data
   let processedData = [...data]
   
@@ -188,7 +197,8 @@ export function BarChart({
                     <span className="text-sm text-gray-600">{metricLabel}</span>
                   </div>
                   <span className="font-medium text-gray-900">
-                    {defaultFormatter(data.value)}
+                    {defaultFormatter(typeof data.value === 'number' ? data.value : 
+                      typeof data.value === 'string' ? parseFloat(data.value) || 0 : 0)}
                   </span>
                 </div>
               </div>

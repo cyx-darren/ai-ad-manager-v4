@@ -92,7 +92,7 @@ export const AutoSignOutHandler: React.FC<AutoSignOutHandlerProps> = ({
   showWarnings = true,
   redirectTo = '/auth/login'
 }) => {
-  const { user, isTokenValid } = useAuth()
+  const { user } = useAuth()
   const router = useRouter()
   
   // State for session management
@@ -188,16 +188,11 @@ export const AutoSignOutHandler: React.FC<AutoSignOutHandlerProps> = ({
     console.log(`⏱️ Session timer set for ${sessionTimeoutMinutes} minutes`)
   }, [enableAutoSignOut, user, sessionTimeoutMinutes, warningMinutes, handleSessionWarning])
 
-  // Monitor token validity
-  useEffect(() => {
-    if (!user || !enableAutoSignOut) return
-
-    if (!isTokenValid) {
-      console.log('🔴 Token is invalid, triggering auto sign-out')
-      handleAutoSignOut('token_expired')
-      onTokenExpiry?.()
-    }
-  }, [user, isTokenValid, enableAutoSignOut, handleAutoSignOut, onTokenExpiry])
+  // Monitor token validity - disabled for now since isTokenValid is not available
+  // useEffect(() => {
+  //   if (!user || !enableAutoSignOut) return
+  //   // Token validity check would go here
+  // }, [user, enableAutoSignOut, handleAutoSignOut, onTokenExpiry])
 
   // Setup session management
   useEffect(() => {

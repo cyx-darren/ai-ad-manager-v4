@@ -6,6 +6,7 @@ import {
   ArrowPathIcon,
   EllipsisVerticalIcon
 } from '@heroicons/react/24/outline'
+import { WidgetSkeleton } from '../ui/SkeletonLoaders'
 
 export interface ChartContainerProps {
   title: string
@@ -31,45 +32,7 @@ export function ChartContainer({
   height = 'h-80'
 }: ChartContainerProps) {
   if (loading) {
-    return (
-      <div className={`bg-white shadow rounded-lg ${className}`}>
-        <div className="px-6 py-5 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                {title}
-              </h3>
-              {description && (
-                <p className="mt-1 max-w-2xl text-sm text-gray-500">
-                  {description}
-                </p>
-              )}
-            </div>
-            <div className="animate-spin">
-              <ArrowPathIcon className="h-5 w-5 text-gray-400" />
-            </div>
-          </div>
-        </div>
-        
-        <div className={`px-6 py-6 ${height}`}>
-          <div className="animate-pulse flex flex-col h-full">
-            <div className="flex-1 space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="space-y-3">
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                <div className="h-4 bg-gray-200 rounded w-4/6"></div>
-              </div>
-            </div>
-            <div className="mt-6 grid grid-cols-3 gap-4">
-              <div className="h-20 bg-gray-200 rounded"></div>
-              <div className="h-20 bg-gray-200 rounded"></div>
-              <div className="h-20 bg-gray-200 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
+    return <WidgetSkeleton variant="chart" height={height} />
   }
 
   if (error) {
