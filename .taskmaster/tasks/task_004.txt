@@ -108,3 +108,137 @@ CREATE TABLE landing_page_analysis (
 4. Test database indexes with performance queries
 5. Verify unique constraints work as expected
 6. Test database functions with sample data
+
+# Subtasks:
+## 2. Implement Row Level Security (RLS) Policies [pending]
+### Dependencies: 4.6
+### Description: Set up comprehensive RLS policies for all tables to ensure proper data isolation and multi-tenant security.
+### Details:
+Create RLS policies for user-based access control, account-based isolation, and role-based permissions. Ensure users can only access their own data and associated account information.
+<info added on 2025-07-29T04:14:09.374Z>
+## Implementation Phases for RLS Policies
+
+**Phase A: Planning and Policy Design (45 minutes)**
+1. Analyze security requirements for multi-tenant architecture
+2. Design user-based access control patterns
+3. Map account-based data isolation requirements
+4. Define role-based permission matrices
+
+**Phase B: Core Entity RLS Policies (60 minutes)**
+1. Implement RLS policies for users table (self-access only)
+2. Create account-based policies for accounts table
+3. Set up ga_data_sources policies with account isolation
+4. Test basic policy functionality with sample users
+
+**Phase C: Analytics Data RLS Policies (60 minutes)**
+1. Implement complex policies for performance_metrics table
+2. Create policies for page_performance with account isolation
+3. Handle time-series data access patterns
+4. Test policies with different date ranges and filters
+
+**Phase D: Advanced Feature RLS Policies (45 minutes)**
+1. Implement policies for recommendations table
+2. Create complex policies for landing_page_analysis with JSONB
+3. Test role-based access (user vs admin vs manager)
+4. Validate cross-table policy interactions
+
+**Phase E: Testing and Validation (30 minutes)**
+1. Create test users with different roles
+2. Validate data isolation between accounts
+3. Test policy performance impact
+4. Document policy logic and edge cases
+
+**Total Estimated Time: 4 hours**
+**Key Risk Areas: Policy complexity, performance impact, cross-table interactions**
+</info added on 2025-07-29T04:14:09.374Z>
+
+## 3. Create Database Indexes for Performance [pending]
+### Dependencies: 4.6
+### Description: Implement strategic database indexes on critical columns to optimize query performance for expected access patterns.
+### Details:
+Create indexes on foreign keys (user_id, account_id), date columns for time-series queries, and frequently filtered columns (campaign, source, medium). Include composite indexes for complex queries.
+
+## 4. Implement Database Triggers and Functions [pending]
+### Dependencies: 4.6
+### Description: Create database triggers for automatic timestamp management and implement common database functions for data operations.
+### Details:
+Set up updated_at triggers for all tables, create utility functions for data aggregation, and implement any custom business logic functions needed for the application.
+<info added on 2025-07-29T04:15:02.060Z>
+# Implementation Phases for Database Triggers and Functions
+
+**Phase A: Timestamp Management Setup (45 minutes)**
+1. Create universal updated_at trigger function for timestamp management
+2. Add updated_at columns to all tables that need timestamp tracking
+3. Apply updated_at triggers to users, accounts, recommendations, and landing_page_analysis tables
+4. Test trigger functionality with INSERT and UPDATE operations
+
+**Phase B: Data Aggregation Functions (60 minutes)**
+1. Create function to calculate account-level performance summaries
+2. Implement function for date range analytics aggregation
+3. Create utility function for bounce rate and engagement rate calculations
+4. Build function for landing page performance scoring
+
+**Phase C: Business Logic Functions (45 minutes)**
+1. Create function for recommendation impact score calculation
+2. Implement data validation functions for GA property IDs
+3. Create utility functions for timezone and currency handling
+4. Build functions for JSONB data manipulation in landing_page_analysis
+
+**Phase D: Advanced Automation (30 minutes)**
+1. Create triggers for automatic sync_status updates in ga_data_sources
+2. Implement triggers for cascade cleanup of related recommendation data
+3. Create functions for automated data archiving/cleanup
+4. Set up database logging triggers for audit trail
+
+**Phase E: Testing and Optimization (30 minutes)**
+1. Test all triggers with comprehensive INSERT/UPDATE/DELETE operations
+2. Validate function performance with sample data sets
+3. Test trigger interaction with RLS policies
+4. Document all functions and triggers for maintenance
+
+**Total Estimated Time: 3.5 hours**
+**Key Risk Areas: Trigger performance impact, complex JSONB manipulation, cascade automation logic**
+</info added on 2025-07-29T04:15:02.060Z>
+
+## 5. Test and Validate Database Schema [pending]
+### Dependencies: 4.2, 4.3, 4.4, 4.6
+### Description: Comprehensive testing of all database tables, constraints, indexes, RLS policies, and functions to ensure proper functionality.
+### Details:
+Test foreign key constraints with cascading deletes, validate RLS policies with different user roles, verify index performance, test triggers and functions, and validate unique constraints and data integrity.
+
+## 6. Create Core Database Tables [pending]
+### Dependencies: None
+### Description: Create SQL migration scripts for all 7 core entities: users, accounts, ga_data_sources, performance_metrics, page_performance, recommendations, and landing_page_analysis tables.
+### Details:
+Use Supabase MCP tools to create tables with proper UUID primary keys, foreign key relationships, and column specifications as defined in the PRD. Include proper data types, constraints, and default values.
+<info added on 2025-07-29T04:14:39.684Z>
+## Implementation Phases for Creating Core Database Tables
+
+**Phase A: Setup and Core User Tables (30 minutes)**
+1. Enable UUID extension in Supabase if not already enabled
+2. Create users table with proper authentication fields (id, email, role, created_at, google_refresh_token)
+3. Create accounts table with Google Analytics property references
+4. Test basic table creation and foreign key relationships
+
+**Phase B: Analytics Data Tables (45 minutes)**  
+1. Create ga_data_sources table for sync tracking with proper status fields
+2. Create performance_metrics table with composite unique constraints (account_id, date, source, medium, campaign)
+3. Create page_performance table with time-series data structure and unique constraints
+4. Validate all data types (NUMERIC precision, INTEGER defaults, TEXT fields)
+
+**Phase C: Advanced Feature Tables (45 minutes)**
+1. Create recommendations table with impact scoring and status tracking
+2. Create landing_page_analysis table with JSONB fields for content_analysis and recommendations
+3. Implement complex unique constraints across multiple columns
+4. Test JSONB field functionality and default value handling
+
+**Phase D: Validation and Relationships (30 minutes)**
+1. Verify all foreign key cascading delete behavior (CASCADE ON DELETE)
+2. Test table relationships end-to-end across all 7 tables
+3. Validate all default values, constraints, and data type handling
+4. Document table schema relationships and prepare for RLS implementation
+
+**Total Estimated Time: 2.5 hours**
+**Key Risk Areas: JSONB field defaults, composite unique constraints, cascading delete chains**
+</info added on 2025-07-29T04:14:39.684Z>
+

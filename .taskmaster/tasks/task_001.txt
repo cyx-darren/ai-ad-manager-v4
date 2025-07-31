@@ -1,6 +1,6 @@
 # Task ID: 1
 # Title: Set up Next.js 14 Project with TypeScript and Tailwind CSS
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: high
 # Description: Initialize the project repository with Next.js 14, TypeScript, and Tailwind CSS for the frontend application that will be deployed to Vercel.
@@ -25,31 +25,31 @@ Create a new Next.js 14 project using the App Router architecture:
 5. Verify ESLint runs without errors using `npm run lint`
 
 # Subtasks:
-## 1. Initialize Next.js 14 Project with TypeScript, Tailwind CSS, and App Router [pending]
+## 1. Initialize Next.js 14 Project with TypeScript, Tailwind CSS, and App Router [done]
 ### Dependencies: None
 ### Description: Create the basic project scaffold
 ### Details:
 Run npx create-next-app@latest ai-google-ads-manager --typescript --tailwind --eslint --app
 
-## 2. Organize Project Structure and Configure TypeScript [pending]
+## 2. Organize Project Structure and Configure TypeScript [done]
 ### Dependencies: 1.1
 ### Description: Set up scalable folder structure and enable strict TypeScript
 ### Details:
 Create folders for components, hooks, utils, types, config, lib, styles. Enable strict mode in tsconfig.json
 
-## 3. Configure Tailwind CSS with Custom Theme [pending]
+## 3. Configure Tailwind CSS with Custom Theme [done]
 ### Dependencies: 1.1, 1.2
 ### Description: Customize Tailwind for the application's design requirements
 ### Details:
 Edit tailwind.config.js with custom theme, colors, and global styles
 
-## 4. Set Up Code Quality Tools: ESLint, Prettier, and Husky [pending]
+## 4. Set Up Code Quality Tools: ESLint, Prettier, and Husky [done]
 ### Dependencies: 1.1, 1.2
 ### Description: Configure code linting, formatting, and pre-commit hooks
 ### Details:
 Configure ESLint/Prettier rules, add Husky for pre-commit hooks, update .gitignore
 
-## 5. Install Additional Dependencies and Set Up Environment Variables [pending]
+## 5. Install Additional Dependencies and Set Up Environment Variables [done]
 ### Dependencies: 1.1, 1.2
 ### Description: Install Tremor and configure environment files
 ### Details:

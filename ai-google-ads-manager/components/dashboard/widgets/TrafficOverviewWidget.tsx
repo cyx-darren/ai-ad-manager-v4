@@ -88,7 +88,7 @@ export const TrafficOverviewWidget: React.FC<TrafficOverviewWidgetProps> = ({
             metrics={['sessions', 'users', 'pageviews']}
             height="h-64"
             formatYAxis={(value) => value.toLocaleString()}
-            colors={['#3b82f6', '#10b981', '#f59e0b']}
+            colors={['#3b82f6', '#10b981', '#ec4899']}
           />
         </ChartContainer>
       </div>

@@ -141,8 +141,8 @@ export function DonutChart({
 
   // Calculate center stats
   const centerStats = {
-    total: defaultFormatter(total),
-    label: metric.charAt(0).toUpperCase() + metric.slice(1)
+    total: total.toLocaleString(),
+    label: `Total ${metric.charAt(0).toUpperCase() + metric.slice(1)}`
   }
 
   return (
@@ -157,16 +157,17 @@ export function DonutChart({
       <div className={`flex ${showLegend ? 'flex-col lg:flex-row' : 'justify-center'} gap-6 ${height}`}>
         {/* Donut Chart */}
         <div className={`${showLegend ? 'lg:w-2/3' : 'w-full'} flex justify-center`}>
-          <div className="relative">
+          <div className="relative tremor-donut-container">
             <TremorDonutChart
               data={formattedData}
               category="value"
               index="name"
               colors={tremorColors}
               className="w-72 h-72"
-              showLabel={showLabels}
+              showLabel={false}
               showAnimation={showAnimation}
               showTooltip={showTooltip}
+              variant="donut"
               customTooltip={(props) => {
                 if (!showTooltip || !props.active || !props.payload) return null
                 
@@ -206,20 +207,18 @@ export function DonutChart({
             />
             
             {/* Center Content */}
-            {(centerContent || !showLegend) && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                {centerContent || (
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">
-                      {centerStats.total}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Total {centerStats.label}
-                    </div>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+              {centerContent || (
+                <div className="text-center donut-chart-center-override">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {centerStats.total}
                   </div>
-                )}
-              </div>
-            )}
+                  <div className="text-sm text-gray-500">
+                    {centerStats.label}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         
@@ -255,7 +254,7 @@ export function DonutChart({
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-600">Total</span>
                 <span className="text-sm font-bold text-gray-900">
-                  {centerStats.total}
+                  {total.toLocaleString()}
                 </span>
               </div>
             </div>

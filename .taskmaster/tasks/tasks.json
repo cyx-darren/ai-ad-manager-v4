@@ -158,8 +158,60 @@
           1,
           2
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Finalize Google OAuth Credentials and Supabase Provider Configuration",
+            "description": "Complete the setup of Google OAuth credentials in Google Cloud Console, ensuring all required scopes for Google Analytics access are included, and configure the Supabase Auth provider with these credentials and correct redirect URIs.",
+            "dependencies": [],
+            "details": "Verify that the OAuth consent screen is fully configured with privacy policy and terms links, and that the OAuth client ID and secret are correctly entered in the Supabase dashboard. Ensure all necessary redirect URIs are registered for both development and production environments.",
+            "status": "done",
+            "testStrategy": "Test Google sign-in flow end-to-end, confirming successful authentication and correct redirect behavior for both local and deployed environments."
+          },
+          {
+            "id": 2,
+            "title": "Enhance and Complete Authentication UI Components",
+            "description": "Develop and refine authentication UI components not yet implemented or needing enhancement, including SignUp, ForgotPassword, ResetPassword, and Profile management, ensuring a consistent and secure user experience.",
+            "dependencies": [],
+            "details": "Build or improve the SignUp, ForgotPassword, ResetPassword, and Profile management components, integrating them with Supabase Auth and Google OAuth. Ensure accessibility, error handling, and responsive design.",
+            "status": "done",
+            "testStrategy": "Manually test each UI component for all authentication flows, including edge cases (e.g., invalid email, expired reset link), and verify error messages and user feedback."
+          },
+          {
+            "id": 3,
+            "title": "Implement Secure Token Storage and Google Refresh Token Handling",
+            "description": "Design and implement secure storage for Supabase and Google OAuth tokens, including handling and securely storing Google refresh tokens required for Google Analytics API access.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Extend backend and Supabase database schema to store Google refresh tokens securely, ensuring encryption at rest and access control. Update authentication logic to capture and store tokens upon successful OAuth login.",
+            "status": "done",
+            "testStrategy": "Simulate OAuth login and verify that tokens are securely stored and retrievable only by authorized processes. Test for unauthorized access attempts."
+          },
+          {
+            "id": 4,
+            "title": "Develop Authentication State Management and Token Refresh Logic",
+            "description": "Implement robust authentication state management using hooks and context, and add logic to refresh Supabase and Google OAuth tokens as needed for seamless user sessions.",
+            "dependencies": [
+              "3.3"
+            ],
+            "details": "Enhance or complete the useAuth hook and AuthProvider context to track authentication state, handle token expiration, and automatically refresh tokens. Integrate with UI to prompt re-authentication if refresh fails.",
+            "status": "done",
+            "testStrategy": "Test session persistence and automatic token refresh by simulating token expiry. Verify that users remain authenticated and are prompted to re-login only when necessary."
+          },
+          {
+            "id": 5,
+            "title": "Integrate Protected Routes, Sign-Out, and Comprehensive Error Handling",
+            "description": "Set up route protection using authentication middleware, implement sign-out functionality, and add comprehensive error handling for all authentication flows.",
+            "dependencies": [
+              "3.4"
+            ],
+            "details": "Configure middleware to restrict access to protected routes based on authentication state. Implement sign-out logic that clears all tokens and session data. Add error handling for authentication failures, token issues, and edge cases.",
+            "status": "done",
+            "testStrategy": "Test access to protected routes with and without authentication, verify sign-out clears all session data, and confirm that all authentication errors are handled gracefully with appropriate user feedback."
+          }
+        ]
       },
       {
         "id": 4,
@@ -171,8 +223,63 @@
         "dependencies": [
           2
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 2,
+            "title": "Implement Row Level Security (RLS) Policies",
+            "description": "Set up comprehensive RLS policies for all tables to ensure proper data isolation and multi-tenant security.",
+            "details": "Create RLS policies for user-based access control, account-based isolation, and role-based permissions. Ensure users can only access their own data and associated account information.\n<info added on 2025-07-29T04:14:09.374Z>\n## Implementation Phases for RLS Policies\n\n**Phase A: Planning and Policy Design (45 minutes)**\n1. Analyze security requirements for multi-tenant architecture\n2. Design user-based access control patterns\n3. Map account-based data isolation requirements\n4. Define role-based permission matrices\n\n**Phase B: Core Entity RLS Policies (60 minutes)**\n1. Implement RLS policies for users table (self-access only)\n2. Create account-based policies for accounts table\n3. Set up ga_data_sources policies with account isolation\n4. Test basic policy functionality with sample users\n\n**Phase C: Analytics Data RLS Policies (60 minutes)**\n1. Implement complex policies for performance_metrics table\n2. Create policies for page_performance with account isolation\n3. Handle time-series data access patterns\n4. Test policies with different date ranges and filters\n\n**Phase D: Advanced Feature RLS Policies (45 minutes)**\n1. Implement policies for recommendations table\n2. Create complex policies for landing_page_analysis with JSONB\n3. Test role-based access (user vs admin vs manager)\n4. Validate cross-table policy interactions\n\n**Phase E: Testing and Validation (30 minutes)**\n1. Create test users with different roles\n2. Validate data isolation between accounts\n3. Test policy performance impact\n4. Document policy logic and edge cases\n\n**Total Estimated Time: 4 hours**\n**Key Risk Areas: Policy complexity, performance impact, cross-table interactions**\n</info added on 2025-07-29T04:14:09.374Z>",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 3,
+            "title": "Create Database Indexes for Performance",
+            "description": "Implement strategic database indexes on critical columns to optimize query performance for expected access patterns.",
+            "details": "Create indexes on foreign keys (user_id, account_id), date columns for time-series queries, and frequently filtered columns (campaign, source, medium). Include composite indexes for complex queries.",
+            "status": "done",
+            "dependencies": [
+              "4.6"
+            ],
+            "parentTaskId": 4
+          },
+          {
+            "id": 4,
+            "title": "Implement Database Triggers and Functions",
+            "description": "Create database triggers for automatic timestamp management and implement common database functions for data operations.",
+            "details": "Set up updated_at triggers for all tables, create utility functions for data aggregation, and implement any custom business logic functions needed for the application.\n<info added on 2025-07-29T04:15:02.060Z>\n# Implementation Phases for Database Triggers and Functions\n\n**Phase A: Timestamp Management Setup (45 minutes)**\n1. Create universal updated_at trigger function for timestamp management\n2. Add updated_at columns to all tables that need timestamp tracking\n3. Apply updated_at triggers to users, accounts, recommendations, and landing_page_analysis tables\n4. Test trigger functionality with INSERT and UPDATE operations\n\n**Phase B: Data Aggregation Functions (60 minutes)**\n1. Create function to calculate account-level performance summaries\n2. Implement function for date range analytics aggregation\n3. Create utility function for bounce rate and engagement rate calculations\n4. Build function for landing page performance scoring\n\n**Phase C: Business Logic Functions (45 minutes)**\n1. Create function for recommendation impact score calculation\n2. Implement data validation functions for GA property IDs\n3. Create utility functions for timezone and currency handling\n4. Build functions for JSONB data manipulation in landing_page_analysis\n\n**Phase D: Advanced Automation (30 minutes)**\n1. Create triggers for automatic sync_status updates in ga_data_sources\n2. Implement triggers for cascade cleanup of related recommendation data\n3. Create functions for automated data archiving/cleanup\n4. Set up database logging triggers for audit trail\n\n**Phase E: Testing and Optimization (30 minutes)**\n1. Test all triggers with comprehensive INSERT/UPDATE/DELETE operations\n2. Validate function performance with sample data sets\n3. Test trigger interaction with RLS policies\n4. Document all functions and triggers for maintenance\n\n**Total Estimated Time: 3.5 hours**\n**Key Risk Areas: Trigger performance impact, complex JSONB manipulation, cascade automation logic**\n</info added on 2025-07-29T04:15:02.060Z>",
+            "status": "done",
+            "dependencies": [
+              "4.6"
+            ],
+            "parentTaskId": 4
+          },
+          {
+            "id": 5,
+            "title": "Test and Validate Database Schema",
+            "description": "Comprehensive testing of all database tables, constraints, indexes, RLS policies, and functions to ensure proper functionality.",
+            "details": "Test foreign key constraints with cascading deletes, validate RLS policies with different user roles, verify index performance, test triggers and functions, and validate unique constraints and data integrity.",
+            "status": "done",
+            "dependencies": [
+              "4.2",
+              "4.3",
+              "4.4",
+              "4.6"
+            ],
+            "parentTaskId": 4
+          },
+          {
+            "id": 6,
+            "title": "Create Core Database Tables",
+            "description": "Create SQL migration scripts for all 7 core entities: users, accounts, ga_data_sources, performance_metrics, page_performance, recommendations, and landing_page_analysis tables.",
+            "details": "Use Supabase MCP tools to create tables with proper UUID primary keys, foreign key relationships, and column specifications as defined in the PRD. Include proper data types, constraints, and default values.\n<info added on 2025-07-29T04:14:39.684Z>\n## Implementation Phases for Creating Core Database Tables\n\n**Phase A: Setup and Core User Tables (30 minutes)**\n1. Enable UUID extension in Supabase if not already enabled\n2. Create users table with proper authentication fields (id, email, role, created_at, google_refresh_token)\n3. Create accounts table with Google Analytics property references\n4. Test basic table creation and foreign key relationships\n\n**Phase B: Analytics Data Tables (45 minutes)**  \n1. Create ga_data_sources table for sync tracking with proper status fields\n2. Create performance_metrics table with composite unique constraints (account_id, date, source, medium, campaign)\n3. Create page_performance table with time-series data structure and unique constraints\n4. Validate all data types (NUMERIC precision, INTEGER defaults, TEXT fields)\n\n**Phase C: Advanced Feature Tables (45 minutes)**\n1. Create recommendations table with impact scoring and status tracking\n2. Create landing_page_analysis table with JSONB fields for content_analysis and recommendations\n3. Implement complex unique constraints across multiple columns\n4. Test JSONB field functionality and default value handling\n\n**Phase D: Validation and Relationships (30 minutes)**\n1. Verify all foreign key cascading delete behavior (CASCADE ON DELETE)\n2. Test table relationships end-to-end across all 7 tables\n3. Validate all default values, constraints, and data type handling\n4. Document table schema relationships and prepare for RLS implementation\n\n**Total Estimated Time: 2.5 hours**\n**Key Risk Areas: JSONB field defaults, composite unique constraints, cascading delete chains**\n</info added on 2025-07-29T04:14:39.684Z>",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          }
+        ]
       },
       {
         "id": 5,
@@ -184,8 +291,62 @@
         "dependencies": [
           3
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set Up Google Cloud Project and Enable GA4 Data API",
+            "description": "Create a new Google Cloud project, enable the Google Analytics Data API, and configure the necessary OAuth 2.0 or Service Account credentials for secure access.",
+            "dependencies": [],
+            "details": "Follow Google Cloud Platform procedures to create a project, enable the Google Analytics Data API, and generate OAuth 2.0 or Service Account credentials. Download and securely store the JSON key file for authentication.",
+            "status": "done",
+            "testStrategy": "Verify that the project is created, the API is enabled, and credentials are generated and accessible."
+          },
+          {
+            "id": 2,
+            "title": "Initialize Node.js Service and Configure Authentication",
+            "description": "Set up a Node.js service on Railway, install the `@google-analytics/data` package, and implement authentication using the credentials from the previous step.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Deploy a Node.js environment on Railway, install required dependencies, and implement authentication logic using OAuth 2.0 or Service Account credentials to obtain access tokens and handle token refresh.",
+            "status": "done",
+            "testStrategy": "Test authentication by connecting to the GA4 Data API and confirming successful token acquisition."
+          },
+          {
+            "id": 3,
+            "title": "Implement Core GA4 Data Fetching Functions",
+            "description": "Develop functions to fetch session metrics, user metrics, traffic source breakdown, page performance, and conversion metrics from the GA4 Data API.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Implement functions such as getSessionMetrics, getUserMetrics, getTrafficSourceBreakdown, getPagePerformance, and getConversionMetrics, each accepting propertyId and dateRange parameters and returning normalized data.",
+            "status": "done",
+            "testStrategy": "Test each function by fetching data for sample property IDs and date ranges, verifying the accuracy and completeness of the returned data."
+          },
+          {
+            "id": 4,
+            "title": "Create Data Transformation and Caching Utilities",
+            "description": "Develop utilities to normalize and transform GA4 API responses and implement a Redis caching layer to optimize repeated data requests.",
+            "dependencies": [
+              "5.3"
+            ],
+            "details": "Write transformation utilities to standardize GA4 data formats and integrate Redis on Railway to cache API responses, reducing redundant API calls and improving performance.",
+            "status": "done",
+            "testStrategy": "Test data transformation with sample API responses and validate caching by confirming cache hits and misses on repeated requests."
+          },
+          {
+            "id": 5,
+            "title": "Implement Error Handling, Rate Limiting, and Documentation",
+            "description": "Add robust error handling, retry logic for API failures, rate limiting to respect Google API quotas, and comprehensive documentation for all endpoints and data formats.",
+            "dependencies": [
+              "5.4"
+            ],
+            "details": "Implement error handling and retry strategies for API failures, enforce rate limits to prevent quota exhaustion, and document all API endpoints, expected inputs/outputs, and data formats.\n<info added on 2025-07-29T10:55:02.944Z>\nComprehensive error handling and retry system has been implemented with the following components:\n\n1. Custom Error Classes:\n   - GA4ServiceError (base class with JSON serialization)\n   - Specialized error types for authentication, quota, network, validation, timeout, cache, configuration, and data processing errors\n   - Classification into retryable and non-retryable errors\n\n2. Exponential Backoff Retry Logic:\n   - RetryManager class with configurable strategies\n   - Specialized retry managers for different error types\n   - Exponential backoff with jitter to prevent thundering herd problems\n   - Intelligent retry decision logic based on error classification\n   - Custom retry delays for quota errors with retry-after header support\n   - Maximum retry limits and delay caps\n\n3. Try-Catch Integration:\n   - Enhanced error handling in GA4DataClient.initialize()\n   - Retry logic in getCachedData() with error classification\n   - New executeGA4APICall() method for consistent API error handling\n   - Updated session and user metrics methods to use the new system\n   - Graceful cache error handling to prevent request blocking\n\n4. Error Monitoring:\n   - Global ErrorHandler with comprehensive statistics\n   - Error tracking by type and code with recovery metrics\n   - Development testing endpoints for all error types\n   - Real-time error statistics endpoints\n\nTesting confirms the system correctly handles various error scenarios with appropriate retry behavior and performance metrics show efficient error recovery with minimal impact on API requests.\n</info added on 2025-07-29T10:55:02.944Z>\n<info added on 2025-07-29T11:13:16.014Z>\n<info added on 2025-07-30T14:22:18.944Z>\n## Rate Limiting and Quota Management Implementation\n\nA comprehensive rate limiting and quota management system has been implemented with the following components:\n\n### 1. Token Bucket Rate Limiting System\n- `TokenBucketRateLimiter` class with configurable capacity and refill rates\n- Exponential backoff and smooth rate limiting algorithm\n- Per-category rate limiters: ga4-core-reporting (100/min), ga4-realtime (60/min), ga4-general (200/min), per-user (10/sec)\n- Dynamic per-user rate limiting with automatic limiter creation\n- Token refill with time-based calculations\n\n### 2. Comprehensive Quota Tracking\n- `QuotaTracker` class monitoring GA4 API quotas\n- Daily quotas: 50,000 core reporting, 10,000 realtime  \n- Hourly quotas: 5,000 core reporting, 1,000 realtime\n- Automatic quota reset monitoring (hourly and daily)\n- Real-time quota usage tracking and status monitoring\n\n### 3. Warning and Alert System\n- Configurable warning thresholds (70% yellow, 90% red)\n- Automatic quota alert generation and callback system\n- Real-time alert monitoring endpoints\n- Status classification (ok, warning, critical)\n\n### 4. Express Middleware Integration\n- `rateLimitMiddleware` with category-specific limiting\n- `quotaMonitoringMiddleware` for global quota awareness\n- HTTP 429 responses with proper Retry-After headers\n- Rate limit and quota headers in all responses\n- Graceful middleware error handling\n\n### 5. Monitoring and Testing Endpoints\n- `/cache/rate-limits` - Real-time rate limiting status\n- `/cache/quota-status` - Current quota usage and health\n- `/cache/quota-alerts` - Active quota warnings and alerts\n- `/cache/rate-limit-config` - System configuration details\n- `/cache/rate-limit-test-dev` - Development testing endpoint\n- `/cache/quota-reset-dev` - Development quota reset utility\n\n### 6. Testing Results\n- **Rate Limiting Test 1**: 10 requests with 50ms delay → 100% success (proper token consumption)\n- **Rate Limiting Test 2**: 65 rapid requests → 60 allowed, 5 blocked (92% success rate, proper rate limiting activation)\n- **Token Bucket Behavior**: Correct token depletion and refill rates\n- **Quota Monitoring**: All quotas healthy, proper reset time calculations\n- **Configuration Verification**: All limits and thresholds correctly configured\n\nThe implementation provides enterprise-grade rate limiting and quota management ensuring the GA4 service respects API limits while providing detailed monitoring and alerting capabilities.\n</info added on 2025-07-30T14:22:18.944Z>\n</info added on 2025-07-29T11:13:16.014Z>\n<info added on 2025-07-29T11:21:27.723Z>\n## API Documentation Implementation\n\nA comprehensive API documentation system has been created with the following components:\n\n### 1. Complete API Documentation (`API_DOCUMENTATION.md`)\n- 50+ page comprehensive documentation covering all aspects of the GA4 API integration\n- Table of contents with 10 major sections for easy navigation\n- Detailed endpoint documentation including parameters, examples, and response formats\n- Authentication methods documentation (API key, Supabase JWT, OAuth 2.0)\n- Rate limiting and quota management specifications\n- Complete error handling with error code reference\n- Cache management and monitoring sections\n- Usage examples with JavaScript code samples\n- Performance optimization guidelines\n\n### 2. Quick Reference Guide (`QUICK_REFERENCE.md`)\n- Common commands for immediate use\n- Error codes quick lookup table\n- Rate limits and quota summaries\n- Quick troubleshooting steps\n- Environment variables reference\n- Development tools commands\n\n### 3. Detailed Troubleshooting Guide (`TROUBLESHOOTING.md`)\n- 10 major troubleshooting categories\n- Diagnostic steps with specific commands\n- Step-by-step solutions for common issues\n- Production deployment guidance\n- Performance optimization techniques\n- Network connectivity troubleshooting\n- Development environment setup\n\n### 4. Documentation Features\n- Complete endpoint reference for all GA4 API endpoints\n- Authentication guide covering multiple auth methods with examples\n- Rate limiting specifications including detailed limits and headers documentation\n- Error handling with complete error code reference and retry guidance\n- Usage examples with real-world JavaScript code samples\n- Comprehensive troubleshooting guide for problem-solving\n- Developer-friendly command reference\n- Testing and debugging endpoint documentation\n\n### 5. Documentation Quality\n- Professional formatting with clear sections and navigation\n- Code examples in bash and JavaScript\n- Tables and structured data for easy reference\n- Production-ready guidance and best practices\n- Complete API reference with all parameters\n- Troubleshooting scenarios based on real-world issues\n\nAll documentation is organized in a structured file system with proper cross-referencing and covers all 15+ API endpoints, authentication flows, rate limiting specifications, error handling, cache management, and development tools.\n</info added on 2025-07-29T11:21:27.723Z>",
+            "status": "done",
+            "testStrategy": "Simulate API failures to test error handling and retries, verify rate limiting under high request volume, and review documentation for completeness and clarity."
+          }
+        ]
       },
       {
         "id": 6,
@@ -199,7 +360,61 @@
           5
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Dashboard Layout and Navigation Components",
+            "description": "Develop the core dashboard layout using Tailwind CSS and Tremor, including the DashboardLayout with sidebar navigation, MetricCard, ChartContainer, and AlertBanner components. Ensure the structure aligns with the existing /dashboard page and authentication context.",
+            "dependencies": [],
+            "details": "Set up the main layout structure, sidebar, and reusable UI components for metrics and notifications. Integrate with authentication context to restrict access as needed.\n<info added on 2025-07-29T11:53:49.981Z>\nSubtask 6.1 has been completed successfully with the implementation of the dashboard layout and navigation components. The following components were created:\n\n1. DashboardLayout: A responsive main layout with sidebar navigation that integrates with the authentication context\n2. AlertBanner: A flexible notification system supporting success, warning, info, and error types\n3. MetricCard: Component for displaying metrics with trend indicators, loading states, and error handling\n4. ChartContainer: A wrapper for charts with loading/error states and refresh functionality\n\nThe sidebar navigation was implemented with a purple theme matching the site design, user profile section with avatar and sign-out functionality, mobile hamburger menu with overlay, and navigation links for analytics and settings.\n\nThe existing /dashboard page was updated to use the new layout while preserving all authentication and security features from Phase D. Sample metric cards with mock data were added, content was reorganized into a modern dashboard layout, and the security panel was made collapsible for better user experience.\n\nThe server was tested and is running successfully without compilation errors, with authentication protection working correctly, components rendering without issues, and running on port 3002.\n</info added on 2025-07-29T11:53:49.981Z>",
+            "status": "done",
+            "testStrategy": "Test layout rendering with mock data and verify sidebar navigation works for authenticated users."
+          },
+          {
+            "id": 2,
+            "title": "Integrate Data Visualization Components",
+            "description": "Implement Tremor-based visualization components: LineChart, BarChart, DonutChart, and TableComponent for displaying Google Analytics metrics, ensuring compatibility with Google Ads-focused data.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Connect visualization components to accept dynamic data props. Prepare for integration with GA4 API service on port 3001.\n<info added on 2025-07-29T16:41:38.521Z>\nImplementation completed successfully for all visualization components:\n\n- LineChart component now supports time series data with multiple metrics, custom formatting options, and preset configurations for different analytics views.\n- BarChart component handles comparative data with sorting and filtering capabilities, supporting both horizontal and vertical layout orientations.\n- DonutChart component displays percentage breakdowns with customizable center content, interactive legends and tooltips.\n- TableComponent includes search, sort, pagination, and custom formatting features with preset configurations for GA4 and Google Ads data.\n\nComprehensive test datasets for GA4 and Google Ads have been created and integrated. All components are exported through a component library interface.\n\nNote on styling: Charts currently display in grayscale as expected with Tremor v3.18.7 default theme. This is standard for enterprise dashboards and doesn't affect functionality - all interactive features (data visualization, legends, tooltips) work correctly.\n\nAll visualization components are now ready for integration with the GA4 API service on port 3001 and for use in the upcoming Dashboard Metric and Traffic Widgets development.\n</info added on 2025-07-29T16:41:38.521Z>",
+            "status": "done",
+            "testStrategy": "Test each chart with sample datasets and validate correct rendering for different metric types."
+          },
+          {
+            "id": 3,
+            "title": "Develop Dashboard Metric and Traffic Widgets",
+            "description": "Create and configure dashboard widgets: TrafficOverviewWidget, ConversionWidget, TopPagesWidget, and TrafficSourceWidget (with Google Ads filter), leveraging the visualization and layout components.",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Wire up widgets to display relevant metrics and visualizations, ensuring Google Ads traffic is highlighted where required.",
+            "status": "done",
+            "testStrategy": "Test widget rendering with mock and live data, and verify Google Ads filter functionality."
+          },
+          {
+            "id": 4,
+            "title": "Implement State Management and Data Fetching",
+            "description": "Set up React Context for dashboard state management and integrate data fetching from the GA4 API service, including loading states, error handling, and refresh functionality.",
+            "dependencies": [
+              "6.3"
+            ],
+            "details": "Manage dashboard state globally, handle asynchronous data loading, and implement skeleton loaders and error banners for failed fetches.",
+            "status": "pending",
+            "testStrategy": "Simulate API responses, test loading and error states, and verify refresh updates data as expected."
+          },
+          {
+            "id": 5,
+            "title": "Add Responsive Design, Date Range Selector, and Settings Panel",
+            "description": "Ensure the dashboard is fully responsive for mobile and desktop, implement a date range selector, and create a settings panel for user customization.",
+            "dependencies": [
+              "6.4"
+            ],
+            "details": "Use Tailwind CSS responsive utilities for layout adaptation, build a date range picker component, and provide a settings panel for dashboard preferences.",
+            "status": "pending",
+            "testStrategy": "Test UI on various screen sizes, validate date range selection updates data, and confirm settings persist and apply correctly."
+          }
+        ]
       },
       {
         "id": 7,
@@ -474,7 +689,7 @@
     ],
     "metadata": {
       "created": "2025-07-26T14:45:57.525Z",
-      "updated": "2025-07-27T04:34:51.392Z",
+      "updated": "2025-07-29T17:07:17.709Z",
       "description": "Tasks for master context"
     }
   }

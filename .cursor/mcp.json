@@ -4,8 +4,8 @@
 			"command": "npx",
 			"args": ["-y", "--package=task-master-ai", "task-master-ai"],
 			"env": {
-				"ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
-				"PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
+				"ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_KEY_HERE",
+				"PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_KEY_HERE",
 				"OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
 				"GOOGLE_API_KEY": "YOUR_GOOGLE_KEY_HERE",
 				"XAI_API_KEY": "YOUR_XAI_KEY_HERE",

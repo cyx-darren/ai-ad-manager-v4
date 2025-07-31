@@ -116,14 +116,14 @@ export const TrafficSourceWidget: React.FC<TrafficSourceWidgetProps> = ({
           {showGoogleAdsFilter && (
             <div className="flex items-center space-x-4">
               {/* Google Ads Highlight Toggle */}
-              <label className="flex items-center text-sm">
+              <label className="flex items-center text-sm text-gray-700 font-medium">
                 <input
                   type="checkbox"
                   checked={highlightGoogleAds}
                   onChange={(e) => setHighlightGoogleAds(e.target.checked)}
-                  className="mr-2 rounded"
+                  className="mr-2 rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
                 />
-                <span className="flex items-center">
+                <span className="flex items-center text-gray-700">
                   <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
                   Highlight Google Ads
                 </span>

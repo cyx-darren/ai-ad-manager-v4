@@ -301,3 +301,65 @@
   rx: 6px !important; /* Make them circular */
   ry: 6px !important;
 }
+
+/* Hide Tremor donut chart default center content to prevent duplication */
+.tremor-DonutChart-root .recharts-text,
+[data-tremor-id="tremor-chart"] .recharts-text[text-anchor="middle"]:not(.recharts-tooltip-item-name):not(.recharts-tooltip-item-value) {
+  display: none !important;
+}
+
+/* More aggressive approach to hide ALL possible center text */
+[data-tremor-id="tremor-chart"] svg text[text-anchor="middle"],
+.recharts-wrapper svg text[text-anchor="middle"],
+.recharts-layer svg text[text-anchor="middle"],
+.recharts-text.recharts-label {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Hide any text that might be positioned in center */
+.recharts-wrapper svg text[x="136"],
+.recharts-wrapper svg text[y="136"],
+.recharts-layer svg text[dy="0.355em"] {
+  display: none !important;
+}
+
+/* Ensure our custom center content is visible */
+.donut-chart-center-override {
+  position: relative;
+  z-index: 100 !important;
+}
+
+/* Hide any default donut chart center text that might be duplicating */
+.tremor-DonutChart-root svg text[text-anchor="middle"]:not([class*="tooltip"]) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Nuclear option - hide all SVG text in donut charts except tooltips */
+.tremor-DonutChart-root svg text:not([class*="tooltip"]):not([class*="legend"]) {
+  display: none !important;
+}
+
+/* Target our specific donut container and aggressively hide all SVG text */
+.tremor-donut-container svg text {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Hide any text elements that might be rendered by Tremor */
+.tremor-donut-container .recharts-wrapper svg text,
+.tremor-donut-container .recharts-layer text,
+.tremor-donut-container [data-tremor-id] svg text {
+  display: none !important;
+}
+
+/* Ensure tooltip text still works when hovering */
+.tremor-donut-container .recharts-tooltip-wrapper text,
+.tremor-donut-container .recharts-tooltip text {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
