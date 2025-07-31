@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
+import { useGA4DataService } from '@/lib/ga4ApiClient'
 
 // Types for dashboard state
 export interface DateRange {
@@ -217,6 +218,15 @@ export interface DashboardContextType {
   // Utility actions
   refresh: () => Promise<void>
   reset: () => void
+  
+  // Individual data fetching functions - Phase B
+  fetchData: {
+    sessions: () => Promise<void>
+    trafficSources: () => Promise<void>
+    topPages: () => Promise<void>
+    conversions: () => Promise<void>
+    all: () => Promise<void>
+  }
 }
 
 // Create the context
@@ -225,6 +235,10 @@ const DashboardContext = createContext<DashboardContextType | null>(null)
 // Provider component
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(dashboardReducer, initialState)
+  const dataService = useGA4DataService()
+
+  // 🐛 DEBUG: Add console log to trace re-renders
+  console.log('🔄 DashboardProvider render - Date range:', state.dateRange)
 
   // Date range management
   const setDateRange = useCallback((dateRange: DateRange) => {
@@ -292,17 +306,154 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_DATA', payload: { key, value: data } })
   }, [])
 
-  // Refresh functionality (placeholder for Phase 5)
+  // Data fetching functions - Phase B Implementation
+  const fetchSessionData = useCallback(async () => {
+    console.log('🔍 Fetching session data...')
+    setLoading('timeSeries', true)
+    clearError('timeSeries')
+    
+    try {
+      const sessionMetrics = await dataService.getSessionMetrics({
+        startDate: state.dateRange.startDate,
+        endDate: state.dateRange.endDate
+      })
+      
+      setData('timeSeries', sessionMetrics.timeSeries || [])
+      console.log('✅ Session data fetched successfully')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch session data'
+      setError('timeSeries', errorMessage)
+      console.error('❌ Session data fetch failed:', errorMessage)
+    } finally {
+      setLoading('timeSeries', false)
+    }
+  }, [state.dateRange, dataService, setLoading, clearError, setData, setError])
+
+  const fetchTrafficSourceData = useCallback(async () => {
+    setLoading('trafficSources', true)
+    clearError('trafficSources')
+    
+    try {
+      const trafficSources = await dataService.getTrafficSources({
+        startDate: state.dateRange.startDate,
+        endDate: state.dateRange.endDate
+      })
+      
+      console.log('🔍 DEBUG: Traffic sources received:', {
+        data: trafficSources,
+        isArray: Array.isArray(trafficSources),
+        type: typeof trafficSources,
+        length: trafficSources?.length
+      })
+      
+      setData('trafficSources', trafficSources)
+      console.log('✅ Traffic source data fetched successfully')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch traffic source data'
+      setError('trafficSources', errorMessage)
+      console.error('❌ Traffic source data fetch failed:', errorMessage)
+    } finally {
+      setLoading('trafficSources', false)
+    }
+  }, [state.dateRange, dataService, setLoading, clearError, setData, setError])
+
+  const fetchTopPagesData = useCallback(async () => {
+    setLoading('topPages', true)
+    clearError('topPages')
+    
+    try {
+      const pagePerformance = await dataService.getPagePerformance({
+        startDate: state.dateRange.startDate,
+        endDate: state.dateRange.endDate
+      })
+      
+      setData('topPages', pagePerformance)
+      console.log('✅ Top pages data fetched successfully')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch top pages data'
+      setError('topPages', errorMessage)
+      console.error('❌ Top pages data fetch failed:', errorMessage)
+    } finally {
+      setLoading('topPages', false)
+    }
+  }, [state.dateRange, dataService, setLoading, clearError, setData, setError])
+
+  const fetchConversionsData = useCallback(async () => {
+    setLoading('conversions', true)
+    clearError('conversions')
+    
+    try {
+      const conversions = await dataService.getConversions({
+        startDate: state.dateRange.startDate,
+        endDate: state.dateRange.endDate
+      })
+      
+      setData('conversions', conversions)
+      console.log('✅ Conversions data fetched successfully')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch conversions data'
+      setError('conversions', errorMessage)
+      console.error('❌ Conversions data fetch failed:', errorMessage)
+    } finally {
+      setLoading('conversions', false)
+    }
+  }, [state.dateRange, dataService, setLoading, clearError, setData, setError])
+
+  // Main refresh functionality - Phase B Implementation
   const refresh = useCallback(async () => {
-    console.log('🔄 Dashboard refresh triggered')
+    console.log('🔄 Dashboard refresh triggered - Phase B Implementation')
+    console.log('📊 Current date range:', state.dateRange)
     dispatch({ type: 'SET_LAST_REFRESH', payload: new Date().toISOString() })
     
-    // This will be implemented in Phase 2 (API Integration)
-    // For now, just clear errors and reset loading states
+    // Set global loading state
+    setGlobalLoading(true)
     clearErrors()
     
-    // TODO: Implement actual data fetching in Phase 2
-  }, [clearErrors])
+    try {
+      // Test API connection first (but less frequently than before)
+      const lastConnectionTest = sessionStorage.getItem('lastConnectionTest')
+      const now = Date.now()
+      let isConnected = true // Default to true to avoid unnecessary blocking
+      
+      if (!lastConnectionTest || now - parseInt(lastConnectionTest) > 60000) { // 1 minute rate limit
+        console.log('🔍 Testing API connection during refresh...')
+        isConnected = await dataService.testConnection()
+        sessionStorage.setItem('lastConnectionTest', now.toString())
+        sessionStorage.setItem('lastConnectionStatus', isConnected ? 'connected' : 'failed')
+      } else {
+        console.log('⏭️ Skipping connection test (using cached status)')
+        const cachedStatus = sessionStorage.getItem('lastConnectionStatus')
+        isConnected = cachedStatus === 'connected'
+      }
+      
+      console.log(`🔌 API Connection: ${isConnected ? 'Connected' : 'Using fallback data'}`)
+      
+      // Fetch all data types in parallel
+      await Promise.allSettled([
+        fetchSessionData(),
+        fetchTrafficSourceData(),
+        fetchTopPagesData(),
+        fetchConversionsData()
+      ])
+      
+      console.log('✅ Dashboard refresh completed successfully')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Dashboard refresh failed'
+      setError('global', errorMessage)
+      console.error('❌ Dashboard refresh failed:', errorMessage)
+    } finally {
+      setGlobalLoading(false)
+    }
+  }, [
+    dataService,
+    setGlobalLoading,
+    clearErrors,
+    setError,
+    fetchSessionData,
+    fetchTrafficSourceData,
+    fetchTopPagesData,
+    fetchConversionsData
+  ])
 
   // Reset functionality
   const reset = useCallback(() => {
@@ -326,6 +477,21 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // Initial data fetch on mount and when date range changes - Phase B Implementation
+  useEffect(() => {
+    console.log('📅 Date range changed, fetching fresh data...')
+    refresh()
+  }, [state.dateRange.startDate, state.dateRange.endDate]) // ✅ FIXED: Removed refresh from dependencies
+
+  // Expose individual fetch functions for manual use
+  const fetchData = useCallback({
+    sessions: fetchSessionData,
+    trafficSources: fetchTrafficSourceData,
+    topPages: fetchTopPagesData,
+    conversions: fetchConversionsData,
+    all: refresh
+  }, [fetchSessionData, fetchTrafficSourceData, fetchTopPagesData, fetchConversionsData, refresh])
+
   // Context value
   const value: DashboardContextType = {
     state,
@@ -340,7 +506,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     clearError,
     setData,
     refresh,
-    reset
+    reset,
+    fetchData
   }
 
   return (
