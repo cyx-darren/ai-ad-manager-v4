@@ -1,4 +1,7 @@
+'use client'
+
 import ThemeTest from '../components/ThemeTest';
+import OAuthTestSection from '../components/auth/OAuthTestSection';
 
 export default function Home() {
   return (
@@ -7,10 +10,13 @@ export default function Home() {
         <h1 className="text-3xl font-bold text-gray-900 mb-4">
           AI Ad Manager v4
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 mb-6">
           Welcome to the AI-powered advertising management platform. 
           This application helps optimize your Google Ads campaigns using advanced analytics and AI recommendations.
         </p>
+        
+        {/* Temporary OAuth Test Section */}
+        <OAuthTestSection />
       </div>
       
       <div className='border-t border-border pt-8'>

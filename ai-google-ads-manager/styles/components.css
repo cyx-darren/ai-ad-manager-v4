@@ -6,29 +6,29 @@
 }
 
 .btn-primary {
-  @apply bg-saas-primary text-white hover:bg-saas-primary-dark focus:ring-saas-primary shadow-lg hover:shadow-xl;
+  @apply bg-primary text-white hover:opacity-90 focus:ring-primary shadow-lg hover:shadow-xl;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
 }
 
 .btn-secondary {
-  @apply bg-saas-secondary text-white hover:bg-cyan-600 focus:ring-saas-secondary shadow-lg hover:shadow-xl;
+  @apply bg-secondary text-white hover:opacity-90 focus:ring-secondary shadow-lg hover:shadow-xl;
 }
 
 .btn-accent {
-  @apply bg-saas-accent text-white hover:bg-pink-600 focus:ring-saas-accent shadow-lg hover:shadow-xl;
+  @apply bg-accent text-white hover:bg-pink-600 focus:ring-accent shadow-lg hover:shadow-xl;
   background: linear-gradient(135deg, #ec4899 0%, #f97316 100%);
 }
 
 .btn-destructive {
-  @apply bg-saas-error text-white hover:bg-red-600 focus:ring-saas-error shadow-lg hover:shadow-xl;
+  @apply bg-destructive text-white hover:bg-red-600 focus:ring-destructive shadow-lg hover:shadow-xl;
 }
 
 .btn-outline {
-  @apply border-2 border-saas-primary bg-transparent text-saas-primary hover:bg-saas-primary hover:text-white focus:ring-saas-primary shadow-md hover:shadow-lg;
+  @apply border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-white focus:ring-primary shadow-md hover:shadow-lg;
 }
 
 .btn-ghost {
-  @apply bg-transparent text-saas-primary hover:bg-saas-primary/10 focus:ring-saas-primary;
+  @apply bg-transparent text-primary hover:bg-blue-50 focus:ring-primary;
 }
 
 .btn-gradient {
@@ -52,7 +52,7 @@
 }
 
 .card-glass {
-  @apply rounded-2xl border border-white/20 p-8 shadow-xl backdrop-blur-lg;
+  @apply rounded-2xl border border-gray-200 p-8 shadow-xl backdrop-blur-lg;
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -82,7 +82,7 @@
 
 /* Modern Input components */
 .input {
-  @apply flex h-12 w-full rounded-lg border-2 border-border bg-input px-4 py-3 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-saas-primary focus:outline-none focus:ring-4 focus:ring-saas-primary/20 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply flex h-12 w-full rounded-lg border-2 border-border bg-input px-4 py-3 text-sm transition-all duration-200 placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 .input:focus {
@@ -99,23 +99,23 @@
 }
 
 .badge-success {
-  @apply bg-saas-success/10 text-saas-success ring-saas-success/20;
+  @apply bg-green-50 text-success ring-green-200;
 }
 
 .badge-warning {
-  @apply bg-saas-warning/10 text-saas-warning ring-saas-warning/20;
+  @apply bg-yellow-50 text-warning ring-yellow-200;
 }
 
 .badge-info {
-  @apply bg-saas-secondary/10 text-saas-secondary ring-saas-secondary/20;
+  @apply bg-pink-50 text-secondary ring-pink-200;
 }
 
 .badge-error {
-  @apply bg-saas-error/10 text-saas-error ring-saas-error/20;
+  @apply bg-red-50 text-destructive ring-red-200;
 }
 
 .badge-primary {
-  @apply bg-saas-primary/10 text-saas-primary ring-saas-primary/20;
+  @apply bg-blue-50 text-primary ring-blue-200;
 }
 
 .badge-gradient {
@@ -144,19 +144,19 @@
 }
 
 .saas-brand-primary {
-  @apply text-saas-primary;
+  @apply text-primary;
 }
 
 .saas-brand-secondary {
-  @apply text-saas-secondary;
+  @apply text-secondary;
 }
 
 .saas-brand-accent {
-  @apply text-saas-accent;
+  @apply text-accent;
 }
 
 .saas-brand-success {
-  @apply text-saas-success;
+  @apply text-success;
 }
 
 /* Enhanced Chart container */
@@ -269,4 +269,111 @@
 
 .shadow-glow-accent {
   box-shadow: 0 0 30px rgba(236, 72, 153, 0.3);
+}
+
+/* Authentication-specific component styles */
+.auth-form {
+  @apply space-y-6;
+}
+
+.auth-form-field {
+  @apply space-y-2;
+}
+
+.auth-form-actions {
+  @apply flex flex-col sm:flex-row gap-4 pt-4;
+}
+
+.auth-divider {
+  @apply relative flex items-center py-4;
+}
+
+.auth-divider::before {
+  @apply absolute inset-0 flex items-center;
+  content: '';
+}
+
+.auth-divider::before {
+  @apply w-full border-t border-border;
+}
+
+.auth-divider-text {
+  @apply relative flex justify-center text-sm bg-white px-4 text-muted-foreground;
+}
+
+/* Password strength indicator */
+.password-strength-bar {
+  @apply h-2 w-full rounded-full transition-all duration-200;
+}
+
+.password-strength-indicator {
+  @apply flex space-x-1 mt-2;
+}
+
+.password-strength-label {
+  @apply text-xs font-medium mt-1;
+}
+
+/* Authentication modal specific styles */
+.auth-modal-backdrop {
+  @apply fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4;
+}
+
+.auth-modal-container {
+  @apply bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto;
+}
+
+.auth-modal-header {
+  @apply flex items-center justify-between p-6 border-b border-border;
+}
+
+.auth-modal-content {
+  @apply p-6;
+}
+
+/* Profile management specific styles */
+.profile-avatar {
+  @apply w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center text-white text-2xl font-bold;
+}
+
+.profile-info-card {
+  @apply flex items-center space-x-6 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border;
+}
+
+.profile-action-card {
+  @apply flex items-center justify-between p-4 border border-border rounded-lg;
+}
+
+.profile-danger-zone {
+  @apply border border-red-200 rounded-lg p-4 bg-red-50;
+}
+
+/* Success and error states */
+.auth-success-state {
+  @apply text-center py-12;
+}
+
+.auth-error-state {
+  @apply text-center py-12;
+}
+
+.auth-success-icon {
+  @apply mx-auto mb-6 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center;
+}
+
+.auth-error-icon {
+  @apply mx-auto mb-6 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center;
+}
+
+/* Loading states for authentication */
+.auth-loading-spinner {
+  @apply animate-spin -ml-1 mr-3 h-5 w-5;
+}
+
+.auth-loading-container {
+  @apply text-center py-12;
+}
+
+.auth-loading-icon {
+  @apply animate-spin mx-auto mb-4 w-8 h-8 border-4 border-primary border-t-transparent rounded-full;
 }

@@ -1,5 +1,150 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 @import '../styles/components.css';
+@import '../styles/charts.css';
+
+/* Tremor v3.18.7 Configuration - Chart colors must be in Tailwind's palette */
+/* Ensure these colors are available for Tremor charts */
+
+/* Vibrant SaaS Color Palette for Charts - matching homepage theme */
+:root {
+  /* Primary SaaS Colors */
+  --color-primary: #6366f1;
+  --color-secondary: #ec4899; 
+  --color-accent: #06b6d4;
+  --color-success: #10b981;
+  
+  /* Tremor Chart Colors - Vibrant & High Contrast */
+  --tremor-brand-muted: #f0f9ff;
+  --tremor-brand-subtle: #dbeafe;
+  --tremor-brand: #3b82f6;
+  --tremor-brand-emphasis: #1d4ed8;
+  --tremor-brand-inverted: #ffffff;
+  
+  /* Chart Line Colors - Vibrant Palette */
+  --color-blue: #3b82f6;
+  --color-emerald: #10b981;
+  --color-violet: #8b5cf6;
+  --color-amber: #f59e0b;
+  --color-rose: #f43f5e;
+  --color-cyan: #06b6d4;
+  --color-indigo: #6366f1;
+  --color-orange: #f97316;
+  --color-purple: #a855f7;
+  --color-green: #22c55e;
+  --color-red: #ef4444;
+  --color-yellow: #eab308;
+  --color-pink: #ec4899;
+  --color-teal: #14b8a6;
+  
+  /* Full color spectrum for charts */
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+  --color-emerald-900: #064e3b;
+  
+  --color-violet-50: #f5f3ff;
+  --color-violet-100: #ede9fe;
+  --color-violet-200: #ddd6fe;
+  --color-violet-300: #c4b5fd;
+  --color-violet-400: #a78bfa;
+  --color-violet-500: #8b5cf6;
+  --color-violet-600: #7c3aed;
+  --color-violet-700: #6d28d9;
+  --color-violet-800: #5b21b6;
+  --color-violet-900: #4c1d95;
+  
+  --color-rose-50: #fff1f2;
+  --color-rose-100: #ffe4e6;
+  --color-rose-200: #fecdd3;
+  --color-rose-300: #fda4af;
+  --color-rose-400: #fb7185;
+  --color-rose-500: #f43f5e;
+  --color-rose-600: #e11d48;
+  --color-rose-700: #be185d;
+  --color-rose-800: #9f1239;
+  --color-rose-900: #881337;
+}
+
+/* Force vibrant colors for Tremor charts */
+.tremor-Chart-root {
+  --tremor-content-strong: #111827 !important;
+  --tremor-content-emphasis: #374151 !important;
+}
+
+/* Ensure Tremor chart colors are applied */
+[data-tremor-chart] {
+  /* Blue */
+  --tremor-chart-blue: #3b82f6;
+  /* Emerald */
+  --tremor-chart-emerald: #10b981;
+  /* Rose */
+  --tremor-chart-rose: #f43f5e;
+  /* Violet */
+  --tremor-chart-violet: #8b5cf6;
+  /* Amber */
+  --tremor-chart-amber: #f59e0b;
+  /* Cyan */
+  --tremor-chart-cyan: #06b6d4;
+  /* Indigo */
+  --tremor-chart-indigo: #6366f1;
+  /* Orange */
+  --tremor-chart-orange: #f97316;
+  /* Purple */
+  --tremor-chart-purple: #a855f7;
+  /* Green */
+  --tremor-chart-green: #22c55e;
+  /* Red */
+  --tremor-chart-red: #ef4444;
+  /* Yellow */
+  --tremor-chart-yellow: #eab308;
+  /* Pink */
+  --tremor-chart-pink: #ec4899;
+  /* Teal */
+  --tremor-chart-teal: #14b8a6;
+}
+
+/* Tailwind v4 Theme Configuration */
+@theme {
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), Monaco, 'Courier New', monospace;
+  
+  /* Modern SaaS Color Palette */
+  --color-primary: #6366f1;
+  --color-primary-light: #8b5cf6;
+  --color-primary-dark: #4f46e5;
+  --color-secondary: #06b6d4;
+  --color-accent: #ec4899;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  
+  /* Chart Colors - Vibrant palette */
+  --color-chart-1: #6366f1;
+  --color-chart-2: #06b6d4;
+  --color-chart-3: #10b981;
+  --color-chart-4: #f59e0b;
+  --color-chart-5: #ec4899;
+  --color-chart-6: #8b5cf6;
+}
 
 :root {
   --background: #fafafa;

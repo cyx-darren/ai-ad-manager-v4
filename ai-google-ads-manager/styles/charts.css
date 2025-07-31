@@ -1,0 +1,303 @@
+/* Modern chart enhancements */
+
+/* Bar chart styling */
+.recharts-bar-rectangle > path {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+  transition: all 0.3s ease;
+}
+
+.recharts-bar-rectangle:hover > path {
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+  transform: translateY(-2px);
+}
+
+/* Add gradient definitions for charts */
+.chart-gradients {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* Tremor chart container enhancements */
+[data-tremor-id="tremor-chart"] {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(249, 250, 251, 0.5));
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+/* Grid line styling */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #e5e7eb;
+  stroke-dasharray: 3 3;
+}
+
+/* Axis styling */
+.recharts-xAxis .recharts-text,
+.recharts-yAxis .recharts-text {
+  fill: #6b7280;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Fix Y-axis label spacing for horizontal bar charts */
+.recharts-yAxis .recharts-cartesian-axis-tick {
+  line-height: 1.2;
+}
+
+.recharts-yAxis .recharts-cartesian-axis-tick-value {
+  font-size: 11px;
+  fill: #374151;
+}
+
+/* Ensure proper text wrapping for long labels */
+.recharts-yAxis text {
+  text-anchor: end;
+  dominant-baseline: middle;
+}
+
+/* Specific fixes for horizontal bar charts */
+[data-tremor-id="tremor-chart"] .recharts-cartesian-axis.recharts-yAxis text {
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  fill: #374151 !important;
+}
+
+/* Ensure X-axis shows properly for horizontal charts */
+[data-tremor-id="tremor-chart"] .recharts-cartesian-axis.recharts-xAxis text {
+  font-size: 11px !important;
+  fill: #6b7280 !important;
+}
+
+/* Fix horizontal bar chart container */
+.bar-chart-container[data-layout="horizontal"] {
+  padding-left: 10px;
+}
+
+/* Tooltip enhancement */
+.recharts-tooltip-wrapper {
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+}
+
+/* Bar colors with gradients */
+.recharts-bar-rectangles {
+  opacity: 0.9;
+}
+
+/* Animation for bars */
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
+.recharts-bar-rectangle {
+  animation: barGrow 0.5s ease-out;
+}
+
+/* Responsive text */
+@media (max-width: 768px) {
+  .recharts-xAxis .recharts-text {
+    font-size: 10px;
+  }
+}
+
+/* Custom bar colors with modern gradients */
+.bar-chart-container {
+  position: relative;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.bar-chart-container:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Make bars rounded */
+.recharts-bar-shape {
+  rx: 4;
+  ry: 4;
+}
+
+/* Fix Tremor horizontal bar chart Y-axis spacing */
+[data-tremor-id="tremor-chart"] .recharts-wrapper {
+  margin-left: -10px;
+}
+
+/* Ensure Y-axis labels have proper spacing */
+.recharts-cartesian-axis-tick-line {
+  stroke: #e5e7eb;
+}
+
+.recharts-cartesian-axis.recharts-yAxis .recharts-cartesian-axis-tick {
+  transform: translate(-5px, 0);
+}
+
+/* Better text rendering for Y-axis */
+.recharts-cartesian-axis.recharts-yAxis text {
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.01em;
+}
+
+/* Fix line chart legend dots to match line colors - Enhanced approach */
+
+/* Force legend dots to use the dynamic color */
+.recharts-legend-item svg rect,
+.recharts-legend-item svg circle,
+.recharts-legend-item svg path,
+.recharts-legend-item .recharts-surface {
+  fill: var(--legend-color) !important;
+}
+
+/* Fallback colors for each position */
+.recharts-legend-item:nth-child(1) svg rect,
+.recharts-legend-item:nth-child(1) svg circle,
+.recharts-legend-item:nth-child(1) svg path,
+.recharts-legend-item:nth-child(1) .recharts-surface {
+  fill: #6366f1 !important; /* indigo - sessions */
+}
+
+.recharts-legend-item:nth-child(2) svg rect,
+.recharts-legend-item:nth-child(2) svg circle,
+.recharts-legend-item:nth-child(2) svg path,
+.recharts-legend-item:nth-child(2) .recharts-surface {
+  fill: #10b981 !important; /* emerald - users */
+}
+
+.recharts-legend-item:nth-child(3) svg rect,
+.recharts-legend-item:nth-child(3) svg circle,
+.recharts-legend-item:nth-child(3) svg path,
+.recharts-legend-item:nth-child(3) .recharts-surface {
+  fill: #ec4899 !important; /* pink - pageviews */
+}
+
+.recharts-legend-item:nth-child(4) svg rect,
+.recharts-legend-item:nth-child(4) svg circle,
+.recharts-legend-item:nth-child(4) svg path,
+.recharts-legend-item:nth-child(4) .recharts-surface {
+  fill: #06b6d4 !important; /* cyan */
+}
+
+.recharts-legend-item:nth-child(5) svg rect,
+.recharts-legend-item:nth-child(5) svg circle,
+.recharts-legend-item:nth-child(5) svg path,
+.recharts-legend-item:nth-child(5) .recharts-surface {
+  fill: #fbbf24 !important; /* amber */
+}
+
+.recharts-legend-item:nth-child(6) svg rect,
+.recharts-legend-item:nth-child(6) svg circle,
+.recharts-legend-item:nth-child(6) svg path,
+.recharts-legend-item:nth-child(6) .recharts-surface {
+  fill: #8b5cf6 !important; /* violet */
+}
+
+.recharts-legend-item:nth-child(7) svg rect,
+.recharts-legend-item:nth-child(7) svg circle,
+.recharts-legend-item:nth-child(7) svg path,
+.recharts-legend-item:nth-child(7) .recharts-surface {
+  fill: #fb7185 !important; /* rose */
+}
+
+.recharts-legend-item:nth-child(8) svg rect,
+.recharts-legend-item:nth-child(8) svg circle,
+.recharts-legend-item:nth-child(8) svg path,
+.recharts-legend-item:nth-child(8) .recharts-surface {
+  fill: #34d399 !important; /* green */
+}
+
+/* Alternative approach for legend styling */
+.recharts-default-legend .recharts-legend-item .recharts-surface {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+}
+
+/* Make sure legend text is visible */
+.recharts-legend-item-text {
+  color: #374151 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* Direct targeting of Tremor legend symbols */
+.recharts-legend-item svg rect,
+.recharts-legend-item svg circle,
+.recharts-legend-item svg path {
+  width: 12px;
+  height: 12px;
+}
+
+/* Ensure legend symbols are visible */
+.recharts-default-legend .recharts-legend-item svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* Chart title improvements */
+[data-tremor-id] h3,
+[data-tremor-id] .tremor-Title-root {
+  color: #111827 !important;
+  font-weight: 600 !important;
+}
+
+/* Chart subtitle/description improvements */
+[data-tremor-id] p,
+[data-tremor-id] .tremor-Text-root {
+  color: #6b7280 !important;
+}
+
+/* Force override for Tremor legend colors - most specific approach */
+[data-tremor-id="tremor-chart"] .recharts-default-legend .recharts-legend-item:nth-child(1) svg rect {
+  fill: #6366f1 !important; /* sessions - indigo */
+}
+
+[data-tremor-id="tremor-chart"] .recharts-default-legend .recharts-legend-item:nth-child(2) svg rect {
+  fill: #10b981 !important; /* users - emerald */
+}
+
+[data-tremor-id="tremor-chart"] .recharts-default-legend .recharts-legend-item:nth-child(3) svg rect {
+  fill: #ec4899 !important; /* pageviews - pink */
+}
+
+[data-tremor-id="tremor-chart"] .recharts-default-legend .recharts-legend-item:nth-child(4) svg rect {
+  fill: #06b6d4 !important; /* cyan */
+}
+
+[data-tremor-id="tremor-chart"] .recharts-default-legend .recharts-legend-item:nth-child(5) svg rect {
+  fill: #fbbf24 !important; /* amber */
+}
+
+[data-tremor-id="tremor-chart"] .recharts-default-legend .recharts-legend-item:nth-child(6) svg rect {
+  fill: #8b5cf6 !important; /* violet */
+}
+
+[data-tremor-id="tremor-chart"] .recharts-default-legend .recharts-legend-item:nth-child(7) svg rect {
+  fill: #fb7185 !important; /* rose */
+}
+
+[data-tremor-id="tremor-chart"] .recharts-default-legend .recharts-legend-item:nth-child(8) svg rect {
+  fill: #34d399 !important; /* green */
+}
+
+/* Ensure legend dots are visible with proper styling */
+.recharts-legend-item svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.recharts-legend-item svg rect {
+  width: 12px !important;
+  height: 12px !important;
+  rx: 6px !important; /* Make them circular */
+  ry: 6px !important;
+}

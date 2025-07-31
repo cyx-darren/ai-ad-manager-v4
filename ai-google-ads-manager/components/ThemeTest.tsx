@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 
 export default function ThemeTest() {
@@ -7,7 +9,7 @@ export default function ThemeTest() {
         {/* Header */}
         <div className='text-center space-y-6'>
           <h1 className='text-heading animate-float'>AI Google Ads Manager</h1>
-          <p className='text-xl text-muted-foreground max-w-2xl mx-auto'>
+          <p className='text-xl text-muted-foreground mx-auto' style={{ maxWidth: '672px' }}>
             Modern, vibrant SaaS design with high contrast and professional
             styling
           </p>

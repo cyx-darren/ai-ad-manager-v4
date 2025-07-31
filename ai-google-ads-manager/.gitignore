@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Google Cloud Service Account credentials
+*service-account*.json
+ga4-service-account.json
+ga4-service/ga4-service-account.json
+
+# Other sensitive files
+server.pid
+nohup.out
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
