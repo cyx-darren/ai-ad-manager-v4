@@ -4,6 +4,8 @@ import { useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { DashboardLayout, AlertBanner, MetricCard } from '@/components/dashboard'
+import { DashboardContextTest } from '@/components/dashboard/DashboardContextTest'
+import { SessionRefreshButton } from '@/components/dashboard/SessionRefreshButton'
 import { 
   ChartBarIcon, 
   EyeIcon, 
@@ -20,21 +22,22 @@ export default function DashboardPage() {
       if (!user?.id) return
 
       try {
-        // Try to create user profile if it doesn't exist (ignoring RLS errors)
+        // Upsert user profile (create if doesn't exist, update if it does)
         const { error } = await supabase
           .from('users')
-          .insert({
+          .upsert({
             id: user.id,
             email: user.email!,
             role: 'user',
-            created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
+          }, {
+            onConflict: 'id'
           })
 
-        if (error && error.code !== '23505') { // Ignore unique constraint violations
-          console.warn('Could not create user profile:', error.message)
-        } else if (!error) {
-          console.log('✅ User profile created successfully')
+        if (error) {
+          console.warn('Could not upsert user profile:', error.message)
+        } else {
+          console.log('✅ User profile synchronized successfully')
         }
     } catch (error) {
         console.warn('Could not setup user profile (this is ok):', error)
@@ -59,6 +62,9 @@ export default function DashboardPage() {
           title="Authentication Complete"
           message="🎉 Authentication successful! Your dashboard is ready."
         />
+
+        {/* Session Refresh Button - only shows when user email is not available */}
+        <SessionRefreshButton />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
@@ -86,6 +92,9 @@ export default function DashboardPage() {
             description="Campaign spend"
           />
         </div>
+
+        {/* Dashboard Context Test - Phase 1 Testing */}
+        <DashboardContextTest />
 
         <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Welcome!</h2>

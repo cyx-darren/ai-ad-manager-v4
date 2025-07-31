@@ -1,6 +1,6 @@
 # Task ID: 4
 # Title: Create Database Schema for Core Entities
-# Status: pending
+# Status: done
 # Dependencies: 2
 # Priority: high
 # Description: Implement the database schema for all core entities as defined in the PRD, including User, Account, GA_Data_Source, Performance_Metrics, Page_Performance, Recommendation, and Landing_Page_Analysis tables.
@@ -110,8 +110,8 @@ CREATE TABLE landing_page_analysis (
 6. Test database functions with sample data
 
 # Subtasks:
-## 2. Implement Row Level Security (RLS) Policies [pending]
-### Dependencies: 4.6
+## 2. Implement Row Level Security (RLS) Policies [done]
+### Dependencies: None
 ### Description: Set up comprehensive RLS policies for all tables to ensure proper data isolation and multi-tenant security.
 ### Details:
 Create RLS policies for user-based access control, account-based isolation, and role-based permissions. Ensure users can only access their own data and associated account information.
@@ -152,13 +152,13 @@ Create RLS policies for user-based access control, account-based isolation, and 
 **Key Risk Areas: Policy complexity, performance impact, cross-table interactions**
 </info added on 2025-07-29T04:14:09.374Z>
 
-## 3. Create Database Indexes for Performance [pending]
+## 3. Create Database Indexes for Performance [done]
 ### Dependencies: 4.6
 ### Description: Implement strategic database indexes on critical columns to optimize query performance for expected access patterns.
 ### Details:
 Create indexes on foreign keys (user_id, account_id), date columns for time-series queries, and frequently filtered columns (campaign, source, medium). Include composite indexes for complex queries.
 
-## 4. Implement Database Triggers and Functions [pending]
+## 4. Implement Database Triggers and Functions [done]
 ### Dependencies: 4.6
 ### Description: Create database triggers for automatic timestamp management and implement common database functions for data operations.
 ### Details:
@@ -200,13 +200,13 @@ Set up updated_at triggers for all tables, create utility functions for data agg
 **Key Risk Areas: Trigger performance impact, complex JSONB manipulation, cascade automation logic**
 </info added on 2025-07-29T04:15:02.060Z>
 
-## 5. Test and Validate Database Schema [pending]
+## 5. Test and Validate Database Schema [done]
 ### Dependencies: 4.2, 4.3, 4.4, 4.6
 ### Description: Comprehensive testing of all database tables, constraints, indexes, RLS policies, and functions to ensure proper functionality.
 ### Details:
 Test foreign key constraints with cascading deletes, validate RLS policies with different user roles, verify index performance, test triggers and functions, and validate unique constraints and data integrity.
 
-## 6. Create Core Database Tables [pending]
+## 6. Create Core Database Tables [done]
 ### Dependencies: None
 ### Description: Create SQL migration scripts for all 7 core entities: users, accounts, ga_data_sources, performance_metrics, page_performance, recommendations, and landing_page_analysis tables.
 ### Details:

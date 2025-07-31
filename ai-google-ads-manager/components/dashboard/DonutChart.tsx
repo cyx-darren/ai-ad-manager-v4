@@ -83,7 +83,7 @@ export function DonutChart({
   title,
   description,
   metric = 'sessions',
-  height = 'h-80',
+  height = 'h-96',
   colors = DEFAULT_COLORS,
   showLegend = true,
   showLabels = true,
@@ -141,8 +141,21 @@ export function DonutChart({
 
   // Calculate center stats
   const centerStats = {
-    total: total.toLocaleString(),
-    label: `Total ${metric.charAt(0).toUpperCase() + metric.slice(1)}`
+    total: defaultFormatter(total),
+    label: metric.charAt(0).toUpperCase() + metric.slice(1)
+  }
+
+  // Determine chart size based on height prop
+  const getChartSize = () => {
+    switch (height) {
+      case 'h-32': return 'w-32 h-32' // 128px for dashboard preview
+      case 'h-40': return 'w-40 h-40' // 160px
+      case 'h-48': return 'w-48 h-48' // 192px
+      case 'h-64': return 'w-64 h-64' // 256px
+      case 'h-80': return 'w-72 h-72' // 288px for main charts
+      case 'h-96': return 'w-80 h-80' // 320px
+      default: return 'w-72 h-72'     // Default 288px
+    }
   }
 
   return (
@@ -154,20 +167,19 @@ export function DonutChart({
         </div>
       )}
       
-      <div className={`flex ${showLegend ? 'flex-col lg:flex-row' : 'justify-center'} gap-4 lg:gap-6 min-h-[300px] sm:min-h-[320px] lg:min-h-[350px] h-full`}>
+      <div className={`flex ${showLegend ? 'flex-col lg:flex-row' : 'justify-center'} gap-8 ${height} min-h-fit overflow-visible`}>
         {/* Donut Chart */}
-        <div className={`${showLegend ? 'lg:w-2/3' : 'w-full'} flex items-center justify-center`}>
-          <div className="relative tremor-donut-container">
+        <div className={`${showLegend ? 'lg:w-2/3' : 'w-full'} flex justify-center items-center py-4`}>
+          <div className="relative overflow-visible">
             <TremorDonutChart
               data={formattedData}
               category="value"
               index="name"
               colors={tremorColors}
-              className="w-72 h-72"
-              showLabel={false}
+              className={getChartSize()}
+              showLabel={showLabels}
               showAnimation={showAnimation}
               showTooltip={showTooltip}
-              variant="donut"
               customTooltip={(props) => {
                 if (!showTooltip || !props.active || !props.payload) return null
                 
@@ -178,25 +190,89 @@ export function DonutChart({
                 const dataIndex = formattedData.findIndex(item => item.name === data.name)
                 const correctColor = hexColors[dataIndex] || data.color
                 
+                // Calculate tooltip positioning at outer edge of hovered segment
+                const getTooltipPosition = () => {
+                  const x = props.coordinate?.x || 0
+                  const y = props.coordinate?.y || 0
+                  
+                  // Chart center is approximately at (144, 144) for a 288px (w-72 h-72) chart
+                  const chartCenterX = 144
+                  const chartCenterY = 144
+                  const donutOuterRadius = 120 // Actual donut outer radius (smaller than full chart area)
+                  const tooltipOffset = 8 // Small offset from donut edge (5-10px as requested)
+                  
+                  // Calculate angle from center to mouse position (hovered segment)
+                  const deltaX = x - chartCenterX
+                  const deltaY = y - chartCenterY
+                  const angle = Math.atan2(deltaY, deltaX)
+                  
+                  // Position tooltip just outside the donut ring at the segment's edge
+                  const tooltipRadius = donutOuterRadius + tooltipOffset
+                  const tooltipX = chartCenterX + Math.cos(angle) * tooltipRadius
+                  const tooltipY = chartCenterY + Math.sin(angle) * tooltipRadius
+                  
+                  // Determine positioning class based on angle for optimal readability
+                  const normalizedAngle = ((angle * 180 / Math.PI) + 360) % 360
+                  let positioningClass = 'transform -translate-x-1/2 -translate-y-1/2'
+                  
+                  // Adjust tooltip anchor point based on position to ensure visibility
+                  if (normalizedAngle >= 330 || normalizedAngle < 30) {
+                    // Right side - anchor from left edge
+                    positioningClass = 'transform -translate-y-1/2'
+                  } else if (normalizedAngle >= 30 && normalizedAngle < 60) {
+                    // Bottom-right - anchor from top-left corner
+                    positioningClass = 'transform -translate-y-3/4'
+                  } else if (normalizedAngle >= 60 && normalizedAngle < 120) {
+                    // Bottom side - anchor from top edge
+                    positioningClass = 'transform -translate-x-1/2'
+                  } else if (normalizedAngle >= 120 && normalizedAngle < 150) {
+                    // Bottom-left - anchor from top-right corner
+                    positioningClass = 'transform -translate-x-3/4'
+                  } else if (normalizedAngle >= 150 && normalizedAngle < 210) {
+                    // Left side - anchor from right edge
+                    positioningClass = 'transform -translate-x-full -translate-y-1/2'
+                  } else if (normalizedAngle >= 210 && normalizedAngle < 240) {
+                    // Top-left - anchor from bottom-right corner
+                    positioningClass = 'transform -translate-x-full -translate-y-1/4'
+                  } else if (normalizedAngle >= 240 && normalizedAngle < 300) {
+                    // Top side - anchor from bottom edge  
+                    positioningClass = 'transform -translate-x-1/2 -translate-y-full'
+                  } else {
+                    // Top-right - anchor from bottom-left corner
+                    positioningClass = 'transform -translate-x-1/4 -translate-y-full'
+                  }
+                  
+                  return {
+                    left: `${tooltipX}px`,
+                    top: `${tooltipY}px`,
+                    className: positioningClass
+                  }
+                }
+                
+                const tooltipPosition = getTooltipPosition()
+                
                 return (
-                  <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-                    <div className="flex items-center gap-2 mb-2">
+                  <div 
+                    className={`absolute bg-white p-2 border border-gray-200 rounded-lg shadow-lg z-50 pointer-events-none whitespace-nowrap ${tooltipPosition.className}`}
+                    style={{ left: tooltipPosition.left, top: tooltipPosition.top }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
                       <div 
-                        className="w-3 h-3 rounded-full" 
+                        className="w-2.5 h-2.5 rounded-full" 
                         style={{ backgroundColor: correctColor }}
                       />
-                      <p className="font-medium text-gray-900">{data.name}</p>
+                      <p className="font-medium text-gray-900 text-sm">{data.name}</p>
                     </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="text-sm text-gray-600">Value:</span>
-                        <span className="font-medium text-gray-900">
+                    <div className="space-y-0.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs text-gray-600">Value:</span>
+                        <span className="font-medium text-gray-900 text-xs">
                           {defaultFormatter(data.value)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="text-sm text-gray-600">Share:</span>
-                        <span className="font-medium text-gray-900">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs text-gray-600">Share:</span>
+                        <span className="font-medium text-gray-900 text-xs">
                           {defaultPercentageFormatter(data.payload.percentage)}
                         </span>
                       </div>
@@ -207,25 +283,27 @@ export function DonutChart({
             />
             
             {/* Center Content */}
-            <div className="absolute top-0 left-0 w-72 h-72 flex items-center justify-center pointer-events-none z-20">
-              {centerContent || (
-                <div className="text-center donut-chart-center-override">
-                  <div className="text-2xl font-bold text-gray-900">
-                    {centerStats.total}
+            {(centerContent || !showLegend) && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {centerContent || (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-900">
+                      {centerStats.total}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Total {centerStats.label}
+                    </div>
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {centerStats.label}
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
         
         {/* Legend */}
         {showLegend && (
-          <div className="lg:w-1/3 flex flex-col justify-center min-h-0">
-            <div className="space-y-3">
+          <div className="lg:w-1/3 flex flex-col justify-start lg:justify-center min-h-0">
+            <div className="space-y-2">
               {formattedData.map((item, index) => (
                 <div key={item.name} className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 min-w-0">
@@ -238,23 +316,23 @@ export function DonutChart({
                     </span>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900">
                       {defaultFormatter(item.value)}
-                    </div>
-                    <div className="text-xs text-gray-500">
+                    </span>
+                    <span className="text-xs text-gray-500 ml-2">
                       {defaultPercentageFormatter(item.percentage)}
-                    </div>
+                    </span>
                   </div>
                 </div>
               ))}
             </div>
             
             {/* Total Summary */}
-            <div className="mt-4 pt-3 border-t border-gray-200">
-              <div className="flex items-center justify-between">
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between py-2">
                 <span className="text-sm font-medium text-gray-600">Total</span>
                 <span className="text-sm font-bold text-gray-900">
-                  {total.toLocaleString()}
+                  {centerStats.total}
                 </span>
               </div>
             </div>

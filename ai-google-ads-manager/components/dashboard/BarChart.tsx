@@ -159,7 +159,7 @@ export function BarChart({
           categories={[metric]}
           colors={[tremorColor]}
           valueFormatter={defaultFormatter}
-          yAxisWidth={layout === 'vertical' ? 80 : 250}
+          yAxisWidth={layout === 'vertical' ? 80 : 100}
           layout={layout}
           showLegend={false}
           showGridLines={true}

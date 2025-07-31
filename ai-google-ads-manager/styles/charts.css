@@ -71,7 +71,8 @@
 
 /* Fix horizontal bar chart container */
 .bar-chart-container[data-layout="horizontal"] {
-  padding-left: 10px;
+  padding: 0.5rem 0;
+  margin: 0;
 }
 
 /* Tooltip enhancement */
@@ -110,15 +111,15 @@
 /* Custom bar colors with modern gradients */
 .bar-chart-container {
   position: relative;
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0.5rem 0;
   transition: box-shadow 0.3s ease;
 }
 
 .bar-chart-container:hover {
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 /* Make bars rounded */
@@ -130,6 +131,11 @@
 /* Fix Tremor horizontal bar chart Y-axis spacing */
 [data-tremor-id="tremor-chart"] .recharts-wrapper {
   margin-left: -10px;
+}
+
+/* Additional margin adjustment for horizontal bar charts */
+.bar-chart-container[data-layout="horizontal"] [data-tremor-id="tremor-chart"] .recharts-wrapper {
+  margin-left: -40px;
 }
 
 /* Ensure Y-axis labels have proper spacing */

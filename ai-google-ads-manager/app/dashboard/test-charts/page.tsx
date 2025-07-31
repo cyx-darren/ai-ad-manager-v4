@@ -153,6 +153,16 @@ export default function TestChartsPage() {
                   metric="sessions"
                   height="h-80"
                   title=""
+                  centerContent={
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-gray-900">
+                        {sampleData.trafficSources.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Total Sessions
+                      </div>
+                    </div>
+                  }
                 />
               </div>
 
@@ -166,6 +176,16 @@ export default function TestChartsPage() {
                   height="h-80"
                   showLegend={true}
                   title=""
+                  centerContent={
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-gray-900">
+                        {sampleData.devices.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Total Traffic
+                      </div>
+                    </div>
+                  }
                 />
               </div>
 
@@ -179,6 +199,16 @@ export default function TestChartsPage() {
                   height="h-80"
                   colors={['blue', 'emerald', 'violet', 'amber', 'rose']}
                   title=""
+                  centerContent={
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-gray-900">
+                        {sampleData.campaignTypes.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Total Clicks
+                      </div>
+                    </div>
+                  }
                 />
               </div>
 
@@ -192,6 +222,16 @@ export default function TestChartsPage() {
                   height="h-80"
                   showLegend={true}
                   title=""
+                  centerContent={
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-gray-900">
+                        {sampleData.geographic.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Total Traffic
+                      </div>
+                    </div>
+                  }
                 />
               </div>
             </div>
@@ -254,22 +294,24 @@ export default function TestChartsPage() {
                 title="Traffic Sources"
                 description="Current distribution"
               >
-                <DonutChart
-                    data={sampleData.trafficSources}
-                    metric="sessions"
-                    height="h-48"
-                    showLegend={false}
-                    centerContent={
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-gray-900">
-                          {sampleData.trafficSources.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                <div className="p-4">
+                  <DonutChart
+                      data={sampleData.trafficSources}
+                      metric="sessions"
+                      height="h-32"
+                      showLegend={false}
+                      centerContent={
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-gray-900">
+                            {sampleData.trafficSources.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Total Sessions
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-500">
-                          Total Sessions
-                        </div>
-                      </div>
-                    }
-                  />
+                      }
+                    />
+                </div>
 
               </ChartContainer>
 
@@ -296,13 +338,25 @@ export default function TestChartsPage() {
                 title="Device Performance"
                 description="Sessions by device"
               >
-                <DonutChart
-                    data={sampleData.devices}
-                    metric="sessions"
-                    height="h-48"
-                    showLegend={false}
-                    colors={['blue', 'emerald', 'amber']}
-                  />
+                <div className="p-4">
+                  <DonutChart
+                      data={sampleData.devices}
+                      metric="sessions"
+                      height="h-32"
+                      showLegend={false}
+                      colors={['blue', 'emerald', 'amber']}
+                      centerContent={
+                        <div className="text-center">
+                          <div className="text-lg font-bold text-gray-900">
+                            {sampleData.devices.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Total Sessions
+                          </div>
+                        </div>
+                      }
+                    />
+                </div>
 
               </ChartContainer>
             </div>

@@ -201,19 +201,29 @@ export const TrafficSourceWidget: React.FC<TrafficSourceWidgetProps> = ({
           title={`Traffic Distribution ${filterMode === 'all' ? '' : `(${filterMode.replace('-', ' ')})`}`}
           description={`${totalSessions.toLocaleString()} total sessions`}
           loading={loading}
-          className="min-h-[350px] sm:min-h-[400px] lg:min-h-[450px]"
+          className="min-h-[500px] sm:min-h-[550px] lg:min-h-[600px]"
         >
           <TrafficSourceDonutChart
             data={filteredData}
             showLegend={true}
             showTooltip={true}
             showLabels={true}
+            centerContent={
+              <div className="text-center">
+                <div className="text-3xl font-bold text-gray-900">
+                  {totalSessions.toLocaleString()}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  Total Sessions
+                </div>
+              </div>
+            }
           />
         </ChartContainer>
 
         {/* Filter Results Info */}
         {filterMode !== 'all' && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm text-blue-800">
               <strong>Filter Active:</strong> Showing {filterMode.replace('-', ' ')} traffic only 
               ({filteredData.length} source{filteredData.length !== 1 ? 's' : ''}, {totalSessions.toLocaleString()} sessions)
