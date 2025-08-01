@@ -205,7 +205,7 @@ export function DashboardLayout({
         )}
 
         {/* Page content */}
-        <main className="px-4 sm:px-6 lg:px-8 py-6">
+        <main className="px-4 sm:px-6 lg:px-8 pt-4 pb-6">
           <div className="max-w-full">
             {children}
           </div>
