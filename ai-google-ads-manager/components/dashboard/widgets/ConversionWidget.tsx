@@ -25,12 +25,12 @@ export const ConversionWidget: React.FC<ConversionWidgetProps> = ({
     if (!data || !Array.isArray(data) || data.length === 0) {
       return {
         conversions: 0,
-        conversionsChange: { value: 0, type: 'increase', timeframe: '7 days' },
+        conversionsChange: { value: 0, type: 'increase' as const, timeframe: '7 days' },
         conversionRate: 0,
-        conversionRateChange: { value: 0, type: 'increase', timeframe: '7 days' },
+        conversionRateChange: { value: 0, type: 'increase' as const, timeframe: '7 days' },
         costPerConversion: 0,
         revenue: 0,
-        revenueChange: { value: 0, type: 'increase', timeframe: '7 days' }
+        revenueChange: { value: 0, type: 'increase' as const, timeframe: '7 days' }
       }
     }
     
@@ -59,20 +59,20 @@ export const ConversionWidget: React.FC<ConversionWidgetProps> = ({
       conversions: currentConversions,
       conversionsChange: {
         value: Math.abs(conversionsChange),
-        type: conversionsChange >= 0 ? 'increase' : 'decrease',
+        type: conversionsChange >= 0 ? 'increase' as const : 'decrease' as const,
         timeframe: '7 days'
       },
       conversionRate: currentConversionRate,
       conversionRateChange: {
         value: Math.abs(conversionRateChange),
-        type: conversionRateChange >= 0 ? 'increase' : 'decrease',
+        type: conversionRateChange >= 0 ? 'increase' as const : 'decrease' as const,
         timeframe: '7 days'
       },
       costPerConversion,
       revenue: currentRevenue,
       revenueChange: {
         value: Math.abs(revenueChange),
-        type: revenueChange >= 0 ? 'increase' : 'decrease',
+        type: revenueChange >= 0 ? 'increase' as const : 'decrease' as const,
         timeframe: '7 days'
       }
     }
@@ -119,28 +119,23 @@ export const ConversionWidget: React.FC<ConversionWidgetProps> = ({
             value={conversionMetrics.conversions}
             change={conversionMetrics.conversionsChange}
             loading={loading}
-            format="number"
           />
           <MetricCard
             title="Conversion Rate"
             value={conversionMetrics.conversionRate}
             change={conversionMetrics.conversionRateChange}
             loading={loading}
-            format="percentage"
           />
           <MetricCard
             title="Cost per Conversion"
             value={conversionMetrics.costPerConversion}
             loading={loading}
-            format="currency"
-            showTrend={false}
           />
           <MetricCard
             title="Revenue"
             value={conversionMetrics.revenue}
             change={conversionMetrics.revenueChange}
             loading={loading}
-            format="currency"
           />
         </div>
 
