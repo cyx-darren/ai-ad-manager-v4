@@ -4,6 +4,8 @@ export { MetricCard, LoadingMetricCard, ErrorMetricCard } from './MetricCard';
 export { AlertBanner, SuccessAlert, WarningAlert, InfoAlert, ErrorAlert } from './AlertBanner';
 export { TableComponent, GA4_PAGES_COLUMNS, GA4_TRAFFIC_SOURCES_COLUMNS, GOOGLE_ADS_CAMPAIGNS_COLUMNS } from './TableComponent';
 export { ChartContainer, SmallChartContainer, MediumChartContainer, LargeChartContainer, ChartContainerWithMenu } from './ChartContainer';
+export { DateRangePicker } from './DateRangePicker';
+export { SettingsPanel } from './SettingsPanel';
 
 // Chart Components - Direct exports (Next.js 14 compatible)
 export { 
