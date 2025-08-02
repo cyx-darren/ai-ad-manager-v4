@@ -68,7 +68,7 @@ export function DashboardLayout({
       {/* Sidebar */}
       <div className={`
         fixed inset-y-0 left-0 z-30 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out
-        lg:translate-x-0 lg:static lg:inset-0
+        lg:translate-x-0 lg:fixed lg:inset-y-0 lg:left-0 lg:w-64
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">
@@ -205,7 +205,7 @@ export function DashboardLayout({
         )}
 
         {/* Page content */}
-        <main className="px-4 sm:px-6 lg:px-8 pt-4 pb-6">
+        <main className="px-4 sm:px-6 lg:px-8 py-6">
           <div className="max-w-full">
             {children}
           </div>
