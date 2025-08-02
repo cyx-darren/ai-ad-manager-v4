@@ -12,6 +12,7 @@ import {
   GOOGLE_ADS_CAMPAIGNS_COLUMNS,
   sampleData 
 } from '@/components/dashboard'
+import { useMetricCardsData } from '@/hooks/useMetricCardsData'
 import { DashboardContextTest } from '@/components/dashboard/DashboardContextTest'
 import { SessionRefreshButton } from '@/components/dashboard/SessionRefreshButton'
 import { 
@@ -27,6 +28,7 @@ import {
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  const { data: metricsData, loading: metricsLoading, error: metricsError } = useMetricCardsData()
 
   // Setup user profile when first visiting dashboard
   useEffect(() => {
@@ -76,51 +78,67 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="Total Campaigns"
-            value="12"
+            value={metricsData?.totalCampaigns || 0}
             icon={ChartBarIcon}
-            description="Active ad campaigns"
+            description="Active ad campaigns (mock)"
+            loading={metricsLoading}
+            error={metricsError || undefined}
           />
           <MetricCard
             title="Total Impressions"
-            value="45,678"
+            value={metricsData?.totalImpressions?.toLocaleString() || "0"}
             icon={EyeIcon}
-            description="Campaign impressions"
+            description="Campaign impressions (mock)"
+            loading={metricsLoading}
+            error={metricsError || undefined}
           />
           <MetricCard
             title="Click Rate"
-            value="3.2%"
+            value={metricsData ? `${metricsData.clickRate}%` : "0%"}
             icon={CursorArrowRaysIcon}
-            description="Average CTR"
+            description="Average CTR (mock)"
+            loading={metricsLoading}
+            error={metricsError || undefined}
           />
           <MetricCard
             title="Total Sessions"
-            value="8,234"
+            value={metricsData?.totalSessions?.toLocaleString() || "0"}
             icon={ArrowTrendingUpIcon}
-            description="Website sessions"
+            description="Website sessions (GA4)"
+            loading={metricsLoading}
+            error={metricsError || undefined}
           />
           <MetricCard
             title="Total Users"
-            value="6,543"
+            value={metricsData?.totalUsers?.toLocaleString() || "0"}
             icon={UsersIcon}
-            description="Unique visitors"
+            description="Unique visitors (GA4)"
+            loading={metricsLoading}
+            error={metricsError || undefined}
           />
           <MetricCard
             title="Avg Bounce Rate"
-            value="42.5%"
+            value={metricsData ? `${metricsData.avgBounceRate}%` : "0%"}
             icon={ArrowUturnLeftIcon}
-            description="Average bounce rate"
+            description="Average bounce rate (GA4)"
+            loading={metricsLoading}
+            error={metricsError || undefined}
           />
           <MetricCard
             title="Conversions"
-            value="234"
+            value={metricsData?.conversions?.toLocaleString() || "0"}
             icon={CheckCircleIcon}
-            description="Goal completions"
+            description="Goal completions (GA4)"
+            loading={metricsLoading}
+            error={metricsError || undefined}
           />
           <MetricCard
             title="Total Spend"
-            value="$2,456"
+            value={metricsData ? `$${metricsData.totalSpend.toLocaleString()}` : "$0"}
             icon={BanknotesIcon}
-            description="Campaign spend (mock data)"
+            description="Campaign spend (mock)"
+            loading={metricsLoading}
+            error={metricsError || undefined}
           />
         </div>
 
