@@ -1,0 +1,43 @@
+# Task ID: 26
+# Title: MCP Server Setup & All Tools
+# Status: pending
+# Dependencies: 6
+# Priority: high
+# Description: Set up the complete MCP server infrastructure with all 6 GA4 analytics tools, authentication, and deployment to Railway
+# Details:
+Build a comprehensive MCP server that exposes GA4 analytics as tools, including project setup, authentication, all tool implementations, and production deployment
+
+# Test Strategy:
+Test each tool with real GA4 data, verify authentication flow, and validate deployment
+
+# Subtasks:
+## 1. Initialize MCP Server Project [pending]
+### Dependencies: None
+### Description: Create ga4-analytics-mcp directory structure, install dependencies, set up TypeScript configuration, and configure Railway deployment settings
+### Details:
+Set up project foundation with @modelcontextprotocol/sdk, @google-analytics/data, TypeScript config, and Railway deployment preparation
+
+## 2. Implement Core MCP Server & Authentication [pending]
+### Dependencies: 26.1
+### Description: Create MCP server initialization with proper lifecycle, set up Google OAuth/Service Account authentication, implement credential management and token refresh, add health check endpoint
+### Details:
+Build the core MCP server framework with authentication and health monitoring
+
+## 3. Build Shared GA4 Data Fetching Utilities [pending]
+### Dependencies: 26.2
+### Description: Create reusable GA4 client wrapper, implement common data transformation functions, add date range parsing and validation, build error handling for GA4 API failures
+### Details:
+Build shared utilities that all MCP tools will use for consistent GA4 data handling
+
+## 4. Implement All 6 MCP Tools [pending]
+### Dependencies: 26.3
+### Description: Implement query_analytics (custom metrics/dimensions), get_realtime_data (active users), get_traffic_sources (channel breakdown), get_user_demographics (age/gender/location), get_page_performance (page views/bounce rates), get_conversion_data (goals/funnels)
+### Details:
+Build all 6 MCP tools that will expose GA4 analytics functionality to the frontend
+
+## 5. Add Logging, Monitoring & Deployment [pending]
+### Dependencies: 26.4
+### Description: Implement structured logging for debugging, add performance monitoring, configure environment variables, deploy to Railway and test connection
+### Details:
+Complete the MCP server with production-ready logging, monitoring, and deployment to Railway
+

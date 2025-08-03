@@ -1,0 +1,31 @@
+# Task ID: 29
+# Title: Component Migration
+# Status: pending
+# Dependencies: 28, 6
+# Priority: high
+# Description: Migrate dashboard components to use MCP tools instead of mock data, including metric cards, donut charts, and campaign table
+# Details:
+Update all dashboard components to fetch data through MCP tools while maintaining existing UI and functionality
+
+# Test Strategy:
+Test each component migration with MCP data, verify visual consistency and functionality
+
+# Subtasks:
+## 1. Metric Cards Migration [pending]
+### Dependencies: None
+### Description: Migrate all 8 dashboard metric cards from mock data to MCP tools with feature flags, A/B testing, fallback mechanisms, performance monitoring, and backward compatibility
+### Details:
+Complete migration of metric cards including Total Campaigns, Impressions, Click Rate, Sessions, Users, Bounce Rate, Conversions, and Total Spend to use MCP data sources (10 implementation subtasks required)
+
+## 2. Donut Charts Migration [pending]
+### Dependencies: 29.1
+### Description: Migrate all 4 donut charts (Traffic Source Distribution, Device Breakdown, Campaign Type Performance, Geographic Distribution) from mock data to MCP tools with real-time aggregation and visualization consistency
+### Details:
+Update donut charts to use MCP tools for live data while maintaining visual design and interactive functionality (7 implementation subtasks required)
+
+## 3. Campaign Table Migration [pending]
+### Dependencies: 29.2
+### Description: Migrate Google Ads campaign table from mock data to MCP tools with advanced table functionality including pagination, search, sorting, filtering, and export capabilities
+### Details:
+Update campaign table to use MCP data sources with complex data aggregation, server-side functionality, and enhanced user interactions (8 implementation subtasks required)
+

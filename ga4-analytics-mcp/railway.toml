@@ -1,0 +1,138 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm run build"
+watchPatterns = ["src/**/*.ts", "package.json"]
+
+[deploy]
+startCommand = "npm start"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+gracefulShutdownTimeout = 30
+
+[env]
+# Core application settings
+NODE_ENV = "production"
+MCP_SERVER_PORT = "$PORT"
+MCP_SERVER_HOST = "0.0.0.0"
+
+# HTTP Health Check Server
+HEALTH_CHECK_PORT = "3003"
+HEALTH_CHECK_HOST = "0.0.0.0"
+ENABLE_HEALTH_METRICS = "true"
+ENABLE_HEALTH_DIAGNOSTICS = "false"
+
+# Production logging configuration
+LOG_LEVEL = "info"
+LOG_DIR = "/app/logs"
+LOG_RETENTION_DAYS = "30"
+LOG_MAX_SIZE = "100mb"
+LOG_MAX_FILES = "10"
+ENABLE_CORRELATION_LOGGING = "true"
+ENABLE_REQUEST_LOGGING = "true"
+ENABLE_GA4_LOGGING = "true"
+ENABLE_AUTH_LOGGING = "true"
+ENABLE_HEALTH_LOGGING = "true"
+
+# Performance and scaling settings
+NODE_OPTIONS = "--max-old-space-size=1024"
+UV_THREADPOOL_SIZE = "4"
+ENABLE_REQUEST_TIMEOUT = "true"
+REQUEST_TIMEOUT = "30000"
+ENABLE_RATE_LIMITING = "true"
+RATE_LIMIT_WINDOW = "900000"
+RATE_LIMIT_MAX = "1000"
+
+# Connection pooling and caching
+ENABLE_CONNECTION_POOLING = "true"
+CONNECTION_POOL_SIZE = "10"
+CONNECTION_TIMEOUT = "30000"
+ENABLE_RESPONSE_CACHING = "true"
+CACHE_TTL = "300000"
+
+# Monitoring and observability
+ENABLE_APM_MONITORING = "true"
+ENABLE_ERROR_TRACKING = "true"
+ENABLE_HEALTH_DASHBOARD = "true"
+ENABLE_GA4_METRICS = "true"
+ENABLE_PERFORMANCE_MONITORING = "true"
+
+# Security settings
+ENABLE_CORS = "true"
+CORS_ORIGIN = "*"
+ENABLE_HELMET = "true"
+ENABLE_REQUEST_VALIDATION = "true"
+
+# Health check configuration for Railway deployment
+[healthcheck]
+path = "/health"
+port = 3003
+timeout = 30
+interval = 60
+retries = 3
+startPeriod = 30
+
+# Resource configuration with auto-scaling
+[resources]
+# Base resources
+memory = "1Gi"
+cpu = "1000m"
+
+# Auto-scaling configuration
+[autoscaling]
+enabled = true
+minReplicas = 1
+maxReplicas = 5
+targetCPUUtilization = 70
+targetMemoryUtilization = 80
+scaleUpCooldown = 300
+scaleDownCooldown = 600
+
+# Advanced deployment settings
+[deployment]
+# Rolling update strategy
+strategy = "RollingUpdate"
+maxUnavailable = 1
+maxSurge = 1
+
+# Readiness and liveness probes
+[probes]
+[probes.readiness]
+httpGet.path = "/health"
+httpGet.port = 3003
+initialDelaySeconds = 15
+periodSeconds = 10
+timeoutSeconds = 5
+failureThreshold = 3
+successThreshold = 1
+
+[probes.liveness]
+httpGet.path = "/health"
+httpGet.port = 3003
+initialDelaySeconds = 30
+periodSeconds = 30
+timeoutSeconds = 10
+failureThreshold = 3
+successThreshold = 1
+
+# Network configuration
+[networking]
+# Enable Railway's edge network
+useRailwayProxy = true
+# Custom domains support
+allowCustomDomains = true
+
+# Security policies
+[security]
+# Container security
+readOnlyRootFilesystem = false
+runAsNonRoot = true
+allowPrivilegeEscalation = false
+
+# Secret management
+[secrets]
+# Define which environment variables are secrets
+GA4_PROPERTY_ID = { from = "GA4_PROPERTY_ID" }
+GOOGLE_APPLICATION_CREDENTIALS = { from = "GOOGLE_APPLICATION_CREDENTIALS" }
+GOOGLE_CLIENT_EMAIL = { from = "GOOGLE_CLIENT_EMAIL" }
+GOOGLE_PRIVATE_KEY = { from = "GOOGLE_PRIVATE_KEY" }
+GOOGLE_PROJECT_ID = { from = "GOOGLE_PROJECT_ID" }

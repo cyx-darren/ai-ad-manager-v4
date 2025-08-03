@@ -1,0 +1,43 @@
+# Task ID: 27
+# Title: Frontend MCP Client & Hooks
+# Status: pending
+# Dependencies: 26
+# Priority: high
+# Description: Build MCP client infrastructure for Next.js frontend including connection management, React hooks, and data adapters
+# Details:
+Create complete MCP client integration for the frontend with TypeScript hooks and backward compatibility
+
+# Test Strategy:
+Test hooks with mock MCP client, verify loading states, and ensure data adapter compatibility
+
+# Subtasks:
+## 1. Set Up MCP Client Infrastructure [pending]
+### Dependencies: None
+### Description: Install MCP client SDK in Next.js, create lib/mcp/client.ts with connection management, implement reconnection logic with exponential backoff, add connection state tracking
+### Details:
+Build the foundational MCP client infrastructure for the frontend
+
+## 2. Build MCP Provider & Context [pending]
+### Dependencies: 27.1
+### Description: Create MCPProvider component for app-wide access, implement connection status management, add error boundary for MCP failures, expose client instance via React Context
+### Details:
+Build React context and provider for managing MCP client across the application
+
+## 3. Create Base MCP Hook Utilities [pending]
+### Dependencies: 27.2
+### Description: Build useMCPTool base hook for tool invocation, add loading/error/data state management, implement request deduplication, create TypeScript types for all tool responses
+### Details:
+Create the foundational React hooks for MCP tool invocation with proper state management
+
+## 4. Implement Specific Tool Hooks [pending]
+### Dependencies: 27.3
+### Description: Create useMCPAnalytics() for general queries with date range, useMCPRealtime() for real-time data with auto-refresh, useMCPTrafficSources() for traffic breakdown with filters, useMCPPagePerformance() for page metrics with sorting, useMCPConversions() for conversion data with goals
+### Details:
+Build specialized React hooks for each MCP tool with specific functionality
+
+## 5. Create Data Format Adapters [pending]
+### Dependencies: 27.4
+### Description: Map MCP responses to existing component interfaces, ensure backward compatibility with current data shapes, add data validation and sanitization, handle null/undefined cases gracefully
+### Details:
+Build data adapters to maintain compatibility with existing dashboard components
+

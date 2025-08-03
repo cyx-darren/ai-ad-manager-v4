@@ -1,0 +1,61 @@
+# Task ID: 28
+# Title: Authentication & State Integration
+# Status: pending
+# Dependencies: 27, 3
+# Priority: high
+# Description: Integrate MCP client with existing Supabase authentication and dashboard state management
+# Details:
+Connect MCP client with authentication flow, handle credentials securely, manage state synchronization, and implement multi-property support
+
+# Test Strategy:
+Test authentication integration, state synchronization, and multi-property switching
+
+# Subtasks:
+## 1. Integrate MCP with Existing Auth Flow [pending]
+### Dependencies: None
+### Description: Pass auth tokens from Supabase to MCP client, handle token refresh in MCP connections, implement proper logout cleanup
+### Details:
+Connect MCP authentication with existing Supabase auth system
+
+## 2. Update Dashboard Context for MCP [pending]
+### Dependencies: 28.1
+### Description: Modify data fetching to use MCP hooks, maintain existing state shape, add MCP connection status to context
+### Details:
+Update dashboard context to work with MCP while preserving existing functionality
+
+## 3. Implement Secure Credential Handling [pending]
+### Dependencies: 28.2
+### Description: Store GA4 credentials securely, pass credentials to MCP server properly, handle credential rotation
+### Details:
+Manage GA4 credentials securely for MCP server communication
+
+## 4. Add Permission & Scope Management [pending]
+### Dependencies: 28.3
+### Description: Verify GA4 permissions before tool calls, handle insufficient permission errors, provide clear error messages
+### Details:
+Implement permission checking and error handling for GA4 access
+
+## 5. Create Offline Mode Handling [pending]
+### Dependencies: 28.4
+### Description: Detect when MCP server is unavailable, implement graceful degradation, show appropriate UI feedback
+### Details:
+Handle offline scenarios and provide graceful fallback behavior
+
+## 6. Build Session Management [pending]
+### Dependencies: 28.5
+### Description: Track MCP session lifecycle, handle session timeouts, implement keep-alive mechanism
+### Details:
+Manage MCP session state and connection health
+
+## 7. Add Multi-Property Support [pending]
+### Dependencies: 28.6
+### Description: Allow switching between GA4 properties, store property selection in context, pass property ID to all MCP calls
+### Details:
+Support multiple GA4 properties within the same application
+
+## 8. Implement State Synchronization [pending]
+### Dependencies: 28.7
+### Description: Sync date range across all components, ensure filter changes propagate, handle race conditions
+### Details:
+Ensure state consistency across all MCP-powered components
+

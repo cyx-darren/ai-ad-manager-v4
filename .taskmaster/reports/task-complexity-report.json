@@ -1,8 +1,8 @@
 {
 	"meta": {
-		"generatedAt": "2025-08-02T04:09:20.713Z",
+		"generatedAt": "2025-08-03T13:24:33.698Z",
 		"tasksAnalyzed": 1,
-		"totalTasks": 26,
+		"totalTasks": 31,
 		"analysisCount": 1,
 		"thresholdScore": 5,
 		"projectName": "Taskmaster",
@@ -10,12 +10,12 @@
 	},
 	"complexityAnalysis": [
 		{
-			"taskId": 26,
-			"taskTitle": "Connect Dashboard to Live GA4 API Data Integration",
-			"complexityScore": 9,
+			"taskId": 28,
+			"taskTitle": "Authentication & State Integration",
+			"complexityScore": 8,
 			"recommendedSubtasks": 10,
-			"expansionPrompt": "Break down the GA4 API data integration into granular subtasks for each dashboard component (metric cards, donut charts, campaign tables, advanced analytics), including: endpoint mapping, data transformation, error handling, quota management, authentication, caching, UI state management, security, performance optimization, and modular test coverage. Ensure each subtask aligns with best practices for scalable, secure, and maintainable API integrations.",
-			"reasoning": "This task involves phased integration of a third-party analytics API into multiple dashboard components, requiring robust error handling, quota management, secure authentication, data transformation, and UI feedback. It must address cross-cutting concerns (security, caching, performance, modularity) and coordinate with other features. The breadth of integration, need for resilience, and adherence to industry best practices (modular code, secure token handling, scalable data fetching, and comprehensive testing) make this a highly complex task, warranting further decomposition into at least 10 focused subtasks for effective implementation and maintainability."
+			"expansionPrompt": "Expand this task by breaking down each integration and state management concern into atomic, testable units. Include subtasks for: (1) Supabase-MCP authentication handshake, (2) secure credential storage and rotation, (3) state context refactoring, (4) permission and error handling, (5) offline/connection fallback, (6) session lifecycle management, (7) multi-property context and switching, (8) state synchronization and race condition handling, (9) comprehensive integration testing, and (10) documentation and developer handoff.",
+			"reasoning": "This task involves integrating two authentication systems, secure credential management, complex state synchronization, multi-property support, and robust error/permission handling. Each area introduces significant branching logic, security considerations, and cross-cutting concerns, resulting in high cyclomatic and cognitive complexity[1][2][3]. The current 8 subtasks are well-structured but could be further decomposed to ensure atomicity, testability, and maintainability, especially given the high priority and risk profile."
 		}
 	]
 }

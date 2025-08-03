@@ -1,0 +1,20 @@
+# Google Analytics 4 Configuration
+GA4_PROPERTY_ID=your-ga4-property-id
+GOOGLE_APPLICATION_CREDENTIALS=path/to/your/service-account-key.json
+
+# Alternative: Direct service account credentials (for Railway deployment)
+GOOGLE_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----"
+GOOGLE_PROJECT_ID=your-google-project-id
+
+# MCP Server Configuration
+MCP_SERVER_PORT=3002
+MCP_SERVER_HOST=localhost
+
+# Environment
+NODE_ENV=development
+
+# Railway Configuration (for production)
+# These will be set automatically by Railway
+# PORT=
+# RAILWAY_ENVIRONMENT=

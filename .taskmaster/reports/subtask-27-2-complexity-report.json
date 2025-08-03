@@ -1,0 +1,21 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-02T15:05:06.088Z",
+		"tasksAnalyzed": 1,
+		"totalTasks": 31,
+		"analysisCount": 1,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 27,
+			"taskTitle": "Frontend MCP Client & Hooks",
+			"complexityScore": 8,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Expand this task into subtasks covering: (1) MCP client SDK installation and configuration, (2) robust connection management with reconnection/backoff, (3) React context/provider setup, (4) error boundary and global error handling, (5) base hook utilities with state management and deduplication, (6) specialized hooks for each MCP tool, (7) data adapter mapping and validation, (8) comprehensive testing (unit, integration, mocks), (9) documentation and usage examples.",
+			"reasoning": "This task involves architecting a reusable client infrastructure, advanced React patterns (context, hooks), robust connection logic, backward compatibility, and data adaptation. It requires deep TypeScript integration, error handling, and extensive testing. Industry best practices recommend modularization, separation of concerns, and comprehensive test coverage for such foundational libraries. The current 5 subtasks are broad; further decomposition is needed for maintainability, testability, and clarity, especially for connection logic, error handling, and documentation. Complexity is high due to the need for extensibility, reliability, and compatibility across the frontend."
+		}
+	]
+}

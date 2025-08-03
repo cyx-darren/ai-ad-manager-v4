@@ -1,0 +1,61 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-02T07:46:27.027Z",
+		"tasksAnalyzed": 6,
+		"totalTasks": 31,
+		"analysisCount": 6,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 26,
+			"taskTitle": "MCP Server Setup & All Tools",
+			"complexityScore": 9,
+			"recommendedSubtasks": 12,
+			"expansionPrompt": "Break down the MCP server setup into granular subtasks covering: project scaffolding, dependency management, configuration (TypeScript, Railway), authentication (OAuth/Service Account), credential storage, health checks, shared utility modules, each GA4 tool implementation (one per tool), error handling, logging/monitoring, environment variable management, deployment automation, and post-deployment validation.",
+			"reasoning": "This task involves full-stack server setup, secure authentication, integration with external APIs (GA4), reusable utility development, and production deployment. Each GA4 tool is a distinct integration, and best practices require modularization, robust error handling, and production-grade monitoring. Industry standards recommend separating concerns for maintainability and testability, justifying a high complexity and a need for more granular subtasks."
+		},
+		{
+			"taskId": 27,
+			"taskTitle": "Frontend MCP Client & Hooks",
+			"complexityScore": 8,
+			"recommendedSubtasks": 10,
+			"expansionPrompt": "Expand the MCP client integration into subtasks for: SDK installation, connection management, reconnection logic, React context/provider setup, error boundaries, base hook creation, state management, request deduplication, TypeScript typing, specialized hooks for each tool, data adapter implementation, backward compatibility checks, and comprehensive testing.",
+			"reasoning": "Building a robust client for a complex backend requires careful state and error management, React context/provider patterns, and custom hooks for each analytics tool. Ensuring backward compatibility and type safety adds further complexity. Industry best practices suggest isolating connection logic, context, hooks, and adapters for maintainability and scalability."
+		},
+		{
+			"taskId": 28,
+			"taskTitle": "Authentication & State Integration",
+			"complexityScore": 8,
+			"recommendedSubtasks": 12,
+			"expansionPrompt": "Decompose authentication and state integration into subtasks for: Supabase-MCP token flow, token refresh, logout handling, dashboard context updates, secure credential storage, credential rotation, permission checks, error messaging, offline mode detection, session lifecycle management, multi-property switching, state synchronization, and race condition handling.",
+			"reasoning": "This task requires secure integration between two authentication systems, robust state management, multi-property support, and error/permission handling. Each aspect (auth, state, permissions, offline, session, multi-property) is a potential failure point and should be isolated for clarity and testability, per industry standards."
+		},
+		{
+			"taskId": 29,
+			"taskTitle": "Component Migration",
+			"complexityScore": 7,
+			"recommendedSubtasks": 25,
+			"expansionPrompt": "Expand component migration into subtasks for each dashboard element: for metric cards (one per card plus feature flag, A/B, fallback, and monitoring), donut charts (one per chart plus aggregation, visualization, and interaction), and campaign table (pagination, search, sorting, filtering, export, aggregation, server-side logic, and UI validation).",
+			"reasoning": "Migrating multiple UI components to a new data source while maintaining UX and backward compatibility is complex, especially with advanced features like A/B testing and real-time updates. Each component and feature should be migrated and validated independently to minimize risk and ensure quality."
+		},
+		{
+			"taskId": 30,
+			"taskTitle": "Testing & Deployment",
+			"complexityScore": 7,
+			"recommendedSubtasks": 10,
+			"expansionPrompt": "Break down testing and deployment into subtasks for: integration test setup, tool-specific tests, error scenario validation, frontend component/unit tests, E2E test flows, authentication flow tests, monitoring/alert configuration, deployment automation, rollback procedures, and deployment documentation.",
+			"reasoning": "Comprehensive testing and deployment require multiple test types (integration, component, E2E), monitoring, and robust deployment/rollback strategies. Each area is critical for production readiness and should be addressed separately for traceability and coverage."
+		},
+		{
+			"taskId": 31,
+			"taskTitle": "Performance Optimization (Deferred/Optional)",
+			"complexityScore": 6,
+			"recommendedSubtasks": 10,
+			"expansionPrompt": "Expand performance optimization into subtasks for: caching layer setup (Redis), cache TTL/invalidation, connection pooling implementation, connection health checks, request batching logic, debouncing, WebSocket/SSE integration, real-time dashboard updates, profiling setup, and targeted performance tuning.",
+			"reasoning": "While optional, these optimizations involve advanced backend techniques (caching, pooling, batching, real-time updates) that each require careful design and testing. Industry standards recommend isolating each optimization for incremental rollout and measurable impact."
+		}
+	]
+}

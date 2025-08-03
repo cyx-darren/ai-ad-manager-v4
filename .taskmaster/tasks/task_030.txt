@@ -1,0 +1,43 @@
+# Task ID: 30
+# Title: Testing & Deployment
+# Status: pending
+# Dependencies: 29
+# Priority: high
+# Description: Comprehensive testing suite for MCP implementation and production deployment with monitoring
+# Details:
+Create complete testing coverage for MCP integration, deploy to production, and establish monitoring systems
+
+# Test Strategy:
+Execute integration tests, component tests, E2E tests, and production validation
+
+# Subtasks:
+## 1. Create MCP Integration Tests [pending]
+### Dependencies: None
+### Description: Test each tool with real GA4 data, verify error handling scenarios, test connection failures and recovery, validate data transformation accuracy
+### Details:
+Build comprehensive integration test suite for all MCP tools and server functionality
+
+## 2. Build Frontend Component Tests [pending]
+### Dependencies: 30.1
+### Description: Test hooks with mock MCP client, verify loading and error states, test data adapter functions, ensure backward compatibility
+### Details:
+Create unit and component tests for all MCP-powered frontend components
+
+## 3. Implement E2E Testing Suite [pending]
+### Dependencies: 30.2
+### Description: Test full flow from UI to GA4, verify date range changes update data, test authentication flow, validate all user interactions
+### Details:
+Create end-to-end testing with Cypress for complete user workflows
+
+## 4. Set Up Monitoring & Alerts [pending]
+### Dependencies: 30.3
+### Description: Configure error tracking (Sentry/similar), set up performance monitoring, create alerts for MCP server downtime, monitor API quota usage
+### Details:
+Implement comprehensive monitoring and alerting for production MCP system
+
+## 5. Production Deployment & Rollback Plan [pending]
+### Dependencies: 30.4
+### Description: Deploy MCP server to Railway production, update frontend with feature flags, create rollback procedures, document deployment process
+### Details:
+Execute production deployment with proper rollback planning and documentation
+

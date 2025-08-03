@@ -1,0 +1,141 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-02T07:03:05.088Z",
+		"tasksAnalyzed": 16,
+		"totalTasks": 41,
+		"analysisCount": 16,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 26,
+			"taskTitle": "Research MCP Architecture and Design Migration Strategy",
+			"complexityScore": 10,
+			"recommendedSubtasks": 10,
+			"expansionPrompt": "Break down the MCP migration research into: (1) MCP spec analysis, (2) REST API mapping, (3) security and session management review, (4) capability negotiation documentation, (5) GA4 tool mapping, (6) phased migration plan, (7) risk mitigation strategies, (8) authentication/authorization design, (9) technical documentation, (10) success criteria definition.",
+			"reasoning": "This task requires deep technical research, architectural analysis, mapping of two complex systems (REST API and MCP), security review, phased migration planning, and comprehensive documentation. It spans multiple domains (protocols, security, analytics, migration strategy) and is foundational for all downstream work. Each major aspect (spec review, mapping, security, migration, documentation) warrants a dedicated subtask."
+		},
+		{
+			"taskId": 27,
+			"taskTitle": "Set Up MCP Server Infrastructure and Foundation",
+			"complexityScore": 9,
+			"recommendedSubtasks": 9,
+			"expansionPrompt": "Expand into: (1) Node.js/TypeScript project setup, (2) MCP protocol server core, (3) environment and security config, (4) Supabase authentication integration, (5) core infrastructure (logging, error handling, monitoring), (6) client communication (WebSocket, connection management), (7) dev environment setup (Docker, nodemon), (8) security middleware, (9) server documentation.",
+			"reasoning": "This is a full-stack server foundation task involving protocol implementation, authentication, security, infrastructure, and developer tooling. Each area (project setup, protocol, security, auth, infra, comms, dev tooling, docs) is a significant engineering effort and should be tracked as a subtask."
+		},
+		{
+			"taskId": 28,
+			"taskTitle": "Implement Core GA4 Data Integration Layer",
+			"complexityScore": 9,
+			"recommendedSubtasks": 11,
+			"expansionPrompt": "Decompose into: (1) GA4 package integration, (2) authentication/credential management, (3) data transformation utilities, (4) error handling, (5) quota/rate limiting, (6) caching, (7) data validation/sanitization, (8) date range handling, (9) logging/monitoring, (10) testing framework, (11) documentation.",
+			"reasoning": "This task is a critical backend integration layer with multiple cross-cutting concerns (auth, transformation, error handling, caching, validation, logging, testing, docs). Each concern is a best-practice-aligned submodule and should be tracked as a subtask."
+		},
+		{
+			"taskId": 29,
+			"taskTitle": "Implement MCP Tool - query_analytics for General Metrics",
+			"complexityScore": 8,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Expand into: (1) tool schema design, (2) core functionality implementation, (3) metrics/dimensions support, (4) filtering logic, (5) advanced features (pagination, caching, optimization), (6) error handling/logging, (7) documentation/examples, (8) testing infrastructure.",
+			"reasoning": "This is a feature-complete analytics tool with schema, logic, advanced features, error handling, and documentation. Each major area is a standard subtask for robust tool implementation."
+		},
+		{
+			"taskId": 30,
+			"taskTitle": "Implement MCP Tools - get_realtime_data and get_traffic_sources",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Break down into: (1) get_realtime_data tool, (2) get_traffic_sources tool, (3) shared utilities, (4) tool schemas, (5) documentation, (6) caching/optimization, (7) testing.",
+			"reasoning": "This involves two specialized tools, shared utilities, schema design, documentation, and robust testing. Each tool and cross-cutting concern should be a subtask."
+		},
+		{
+			"taskId": 31,
+			"taskTitle": "Implement MCP Tools - get_user_demographics and get_page_performance",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand into: (1) get_user_demographics tool, (2) get_page_performance tool, (3) privacy compliance/data aggregation, (4) shared utilities, (5) integration with server, (6) documentation, (7) testing/performance validation.",
+			"reasoning": "Two analytics tools with privacy, aggregation, and integration requirements. Each tool and shared concern (privacy, utilities, docs, testing) should be a subtask."
+		},
+		{
+			"taskId": 32,
+			"taskTitle": "Implement MCP Tool - get_conversion_data and Complete GA4 Tools Suite",
+			"complexityScore": 9,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Decompose into: (1) get_conversion_data tool, (2) attribution algorithms, (3) e-commerce data handling, (4) funnel analysis, (5) suite integration, (6) testing framework, (7) logging/monitoring, (8) performance optimization.",
+			"reasoning": "This is the final, most complex analytics tool, plus suite integration, advanced attribution, e-commerce, and performance. Each is a substantial engineering subtask."
+		},
+		{
+			"taskId": 33,
+			"taskTitle": "Implement MCP Client Infrastructure in Next.js Frontend",
+			"complexityScore": 9,
+			"recommendedSubtasks": 11,
+			"expansionPrompt": "Expand into: (1) MCP client library setup, (2) connection management, (3) authentication integration, (4) tool invocation framework, (5) UI abstraction layer, (6) type definitions/validation, (7) error handling/retries, (8) client-side caching, (9) dev tools, (10) feature flags, (11) documentation.",
+			"reasoning": "This is a full-featured client infrastructure task, covering protocol, auth, abstraction, error handling, caching, dev tools, and documentation. Each is a best-practice subtask."
+		},
+		{
+			"taskId": 34,
+			"taskTitle": "Create MCP Data Service Abstraction Layer",
+			"complexityScore": 8,
+			"recommendedSubtasks": 10,
+			"expansionPrompt": "Break down into: (1) GA4DataService class, (2) method-level abstraction, (3) React hooks, (4) caching/data freshness, (5) loading/error/retry logic, (6) data transformation utilities, (7) batch request optimization, (8) performance monitoring, (9) TypeScript types/interfaces, (10) migration documentation.",
+			"reasoning": "This task is a compatibility and abstraction layer, requiring careful design for API parity, caching, error handling, batching, and documentation. Each area is a standard subtask."
+		},
+		{
+			"taskId": 35,
+			"taskTitle": "Integrate MCP Client with Authentication and State Management",
+			"complexityScore": 8,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Expand into: (1) MCP-Supabase Auth integration, (2) dashboard state integration, (3) real-time updates, (4) user preference controls, (5) security/error handling, (6) audit logging, (7) documentation, (8) testing.",
+			"reasoning": "This task covers secure integration of auth, state, real-time updates, and security. Each integration and cross-cutting concern is a best-practice subtask."
+		},
+		{
+			"taskId": 36,
+			"taskTitle": "Migrate Dashboard Metric Cards to MCP Tools",
+			"complexityScore": 7,
+			"recommendedSubtasks": 10,
+			"expansionPrompt": "Decompose into: (1) update useMetricCardsData hook, (2) implement MCP tool invocations, (3) feature flag system, (4) A/B testing framework, (5) error handling/fallback, (6) performance monitoring, (7) automated testing, (8) loading state optimization, (9) migration documentation, (10) TypeScript compatibility.",
+			"reasoning": "This is a high-impact migration task with backward compatibility, feature flags, A/B testing, error handling, and documentation. Each is a standard migration subtask."
+		},
+		{
+			"taskId": 37,
+			"taskTitle": "Migrate Dashboard Donut Charts to MCP Tools",
+			"complexityScore": 7,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand into: (1) traffic source chart migration, (2) device breakdown chart, (3) campaign type chart, (4) geographic chart, (5) shared chart utilities, (6) DonutChart component update, (7) visual consistency validation.",
+			"reasoning": "This is a focused migration of multiple chart components, each with data transformation and visualization requirements. Each chart and shared concern is a subtask."
+		},
+		{
+			"taskId": 38,
+			"taskTitle": "Migrate Google Ads Campaign Table to MCP Tools",
+			"complexityScore": 8,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Break down into: (1) data source integration, (2) campaign-level aggregation, (3) advanced table functionality (pagination, search, sort), (4) data mapping/fusion, (5) TableComponent interface update, (6) error handling, (7) automated testing, (8) documentation.",
+			"reasoning": "This is a complex migration involving advanced table features, data fusion, and robust error handling. Each area is a standard subtask for enterprise-grade data tables."
+		},
+		{
+			"taskId": 39,
+			"taskTitle": "Implement MCP Performance Optimization and Real-time Features",
+			"complexityScore": 10,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand into: (1) performance optimization (batching, caching, pooling), (2) real-time data features (live updates, WebSocket), (3) advanced MCP features (tool chaining, custom tools), (4) data export, (5) dashboard customization, (6) advanced filtering, (7) benchmarking/testing.",
+			"reasoning": "This is a highly complex, cross-cutting optimization and real-time enablement task, requiring advanced engineering for performance, real-time, extensibility, and benchmarking. Each area is a substantial subtask."
+		},
+		{
+			"taskId": 40,
+			"taskTitle": "Implement Comprehensive MCP Testing and Quality Assurance",
+			"complexityScore": 10,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Decompose into: (1) MCP server testing, (2) MCP client testing, (3) end-to-end testing, (4) migration validation, (5) testing infrastructure setup.",
+			"reasoning": "This is a full QA suite for a distributed system, covering server, client, E2E, migration, and infrastructure. Each is a major QA discipline and should be a tracked subtask."
+		},
+		{
+			"taskId": 41,
+			"taskTitle": "Complete MCP Migration: Cleanup, Documentation, and Production Deployment",
+			"complexityScore": 9,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand into: (1) legacy REST API cleanup, (2) production deployment preparation, (3) comprehensive documentation, (4) production support systems, (5) final validation, (6) stakeholder approval.",
+			"reasoning": "This is a critical release and cleanup phase, involving deprecation, deployment, documentation, support, validation, and approval. Each is a standard subtask for production launches."
+		}
+	]
+}
