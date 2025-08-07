@@ -53,7 +53,7 @@ export function useMetricCardData(options: UseMetricCardDataOptions): MetricCard
   
   // State
   const [data, setData] = useState<MetricCardData>({
-    value: '',
+    value: '', // Start with empty value, let the component handle fallback
     loading: true,
     source: 'mock'
   });
@@ -189,6 +189,7 @@ export function useMetricCardData(options: UseMetricCardDataOptions): MetricCard
       const newData = await fetchCardData();
       
       if (mounted.current) {
+        console.log(`[${cardType}] Setting new data:`, newData.value, 'source:', newData.source);
         setData(newData);
         setLastUpdated(new Date());
         

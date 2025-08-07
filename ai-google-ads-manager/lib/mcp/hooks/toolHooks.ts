@@ -9,7 +9,7 @@
 
 import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { useMCPClient, useMCPStatus } from '../context';
-import { useGA4Data, useRealTimeMetrics } from './dataHooks';
+import { useGA4Data, useMetrics } from './dataHooks';
 import { useCachedData, useRetryableOperation } from './advancedHooks';
 import { useAutoRefresh, useDashboardIntegration } from './integrationHooks';
 import { useConnectionNotifications } from './notificationHooks';
@@ -540,7 +540,7 @@ export const useMCPRealtime = (config: RealtimeConfig) => {
   const errorCountRef = useRef(0);
   const successCountRef = useRef(0);
 
-  const { metrics, lastUpdated, isPaused: metricsIsPaused } = useRealTimeMetrics({
+  const { metrics, lastUpdated, isPaused: metricsIsPaused } = useMetrics({
     metrics: ['activeUsers', 'screenPageViews', 'sessions'],
     updateFrequency: config.updateFrequency,
     thresholdPercent: config.thresholdPercent

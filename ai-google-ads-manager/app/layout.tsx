@@ -5,6 +5,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { DashboardProvider } from "@/contexts/DashboardContext";
 import { ErrorProvider } from "@/contexts/ErrorContext";
 import { AppErrorBoundary } from "@/components/ui/ErrorBoundaries";
+import { MCPProvider } from "@/lib/mcp/context";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -34,9 +35,19 @@ export default function RootLayout({
         <ErrorProvider>
           <AppErrorBoundary>
             <AuthProvider>
-              <DashboardProvider>
-                {children}
-              </DashboardProvider>
+              <MCPProvider 
+                config={{
+                  clientConfig: {
+                    serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3004'
+                  },
+                  enableDebugLogging: true,
+                  logConnectionEvents: true
+                }}
+              >
+                <DashboardProvider>
+                  {children}
+                </DashboardProvider>
+              </MCPProvider>
             </AuthProvider>
           </AppErrorBoundary>
         </ErrorProvider>

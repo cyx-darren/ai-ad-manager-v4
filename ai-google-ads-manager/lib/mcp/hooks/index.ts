@@ -7,16 +7,16 @@
 
 // Connection Management Hooks
 export {
-  useConnect,
-  useDisconnect,
-  useReconnect,
-  useConnectionManagement,
-  type UseConnectReturn,
-  type UseDisconnectReturn,
-  type UseReconnectReturn,
-  type UseConnectionManagementReturn,
-  type ConnectionResult,
-  type ConnectionHookState
+  useConnectionMonitor,
+  useNetworkQuality,
+  useConnectionHealth,
+  useLatencyMonitor,
+  useBandwidthMonitor,
+  type UseConnectionMonitorResult,
+  type UseNetworkQualityResult,
+  type UseConnectionHealthResult,
+  type UseLatencyMonitorResult,
+  type UseBandwidthMonitorResult
 } from './connectionHooks';
 
 // Status Monitoring Hooks
@@ -171,6 +171,14 @@ export {
   type PagePerformanceResult,
   type ConversionsResult
 } from './toolHooks';
+
+// Feature Flags Hooks
+export {
+  useFeatureFlag,
+  useFeatureFlags,
+  useFeatureFlagWithLoading,
+  type UseFeatureFlagOptions
+} from './featureFlags';
 
 // Re-export context hooks for convenience
 export {

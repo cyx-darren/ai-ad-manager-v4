@@ -10,8 +10,16 @@ import {
   DonutChart, 
   TableComponent, 
   GOOGLE_ADS_CAMPAIGNS_COLUMNS,
+  MCPCampaignTable,
   sampleData 
 } from '@/components/dashboard'
+import { MCPMetricCard } from '@/components/dashboard/MCPMetricCard'
+import { 
+  TrafficSourceMCPDonutChart,
+  DeviceBreakdownMCPDonutChart,
+  CampaignTypeMCPDonutChart,
+  GeographicMCPDonutChart
+} from '@/components/dashboard/MCPDonutChart'
 import { DashboardContextTest } from '@/components/dashboard/DashboardContextTest'
 import { SessionRefreshButton } from '@/components/dashboard/SessionRefreshButton'
 import { 
@@ -74,53 +82,77 @@ export default function DashboardPage() {
         <SessionRefreshButton />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <MetricCard
+          <MCPMetricCard
+            cardType="total-campaigns"
             title="Total Campaigns"
-            value="12"
+            fallbackValue="12"
             icon={ChartBarIcon}
             description="Active ad campaigns"
+            enableMCP={true}
+            showSource={true}
           />
-          <MetricCard
+          <MCPMetricCard
+            cardType="impressions"
             title="Total Impressions"
-            value="45,678"
+            fallbackValue="45,678"
             icon={EyeIcon}
             description="Campaign impressions"
+            enableMCP={true}
+            showSource={true}
           />
-          <MetricCard
+          <MCPMetricCard
+            cardType="click-rate"
             title="Click Rate"
-            value="3.2%"
+            fallbackValue="3.2%"
             icon={CursorArrowRaysIcon}
             description="Average CTR"
+            enableMCP={true}
+            showSource={true}
           />
-          <MetricCard
+          <MCPMetricCard
+            cardType="sessions"
             title="Total Sessions"
-            value="8,234"
+            fallbackValue="8,234"
             icon={ArrowTrendingUpIcon}
             description="Website sessions"
+            enableMCP={true}
+            showSource={true}
           />
-          <MetricCard
+          <MCPMetricCard
+            cardType="users"
             title="Total Users"
-            value="6,543"
+            fallbackValue="6,543"
             icon={UsersIcon}
             description="Unique visitors"
+            enableMCP={true}
+            showSource={true}
           />
-          <MetricCard
+          <MCPMetricCard
+            cardType="bounce-rate"
             title="Avg Bounce Rate"
-            value="42.5%"
+            fallbackValue="42.5%"
             icon={ArrowUturnLeftIcon}
             description="Average bounce rate"
+            enableMCP={true}
+            showSource={true}
           />
-          <MetricCard
+          <MCPMetricCard
+            cardType="conversions"
             title="Conversions"
-            value="234"
+            fallbackValue="234"
             icon={CheckCircleIcon}
             description="Goal completions"
+            enableMCP={true}
+            showSource={true}
           />
-          <MetricCard
+          <MCPMetricCard
+            cardType="total-spend"
             title="Total Spend"
-            value="$2,456"
+            fallbackValue="$2,456"
             icon={BanknotesIcon}
-            description="Campaign spend (mock data)"
+            description="Campaign spend"
+            enableMCP={true}
+            showSource={true}
           />
         </div>
 
@@ -132,21 +164,12 @@ export default function DashboardPage() {
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Traffic Source Distribution</h3>
               <p className="text-sm text-gray-600 mb-4">Sessions by source</p>
-              <DonutChart
-                data={sampleData.trafficSources}
-                metric="sessions"
+              <TrafficSourceMCPDonutChart
                 height="h-80"
                 title=""
-                centerContent={
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900">
-                      {sampleData.trafficSources.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Total Sessions
-                    </div>
-                  </div>
-                }
+                enableMCP={true}
+                showSource={true}
+                autoRefresh={false}
               />
             </div>
 
@@ -154,22 +177,13 @@ export default function DashboardPage() {
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Device Breakdown</h3>
               <p className="text-sm text-gray-600 mb-4">Traffic by device type</p>
-              <DonutChart
-                data={sampleData.devices}
-                metric="sessions"
+              <DeviceBreakdownMCPDonutChart
                 height="h-80"
                 showLegend={true}
                 title=""
-                centerContent={
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900">
-                      {sampleData.devices.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Total Traffic
-                    </div>
-                  </div>
-                }
+                enableMCP={true}
+                showSource={true}
+                autoRefresh={false}
               />
             </div>
 
@@ -177,22 +191,13 @@ export default function DashboardPage() {
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Campaign Type Performance</h3>
               <p className="text-sm text-gray-600 mb-4">Clicks by campaign type</p>
-              <DonutChart
-                data={sampleData.campaignTypes}
-                metric="clicks"
+              <CampaignTypeMCPDonutChart
                 height="h-80"
                 colors={['blue', 'emerald', 'violet', 'amber', 'rose']}
                 title=""
-                centerContent={
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900">
-                      {sampleData.campaignTypes.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Total Clicks
-                    </div>
-                  </div>
-                }
+                enableMCP={true}
+                showSource={true}
+                autoRefresh={false}
               />
             </div>
 
@@ -200,38 +205,27 @@ export default function DashboardPage() {
             <div className="bg-white p-6 rounded-lg shadow">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Geographic Distribution</h3>
               <p className="text-sm text-gray-600 mb-4">Traffic by country</p>
-              <DonutChart
-                data={sampleData.geographic}
-                metric="sessions"
+              <GeographicMCPDonutChart
                 height="h-80"
                 showLegend={true}
                 title=""
-                centerContent={
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900">
-                      {sampleData.geographic.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Total Traffic
-                    </div>
-                  </div>
-                }
+                enableMCP={true}
+                showSource={true}
+                autoRefresh={false}
               />
             </div>
           </div>
         </div>
 
-        {/* Google Ads Campaigns Table */}
+        {/* Google Ads Campaigns Table - MCP Powered */}
         <div className="mt-8">
-          <TableComponent
-            data={sampleData.googleAdsCampaigns}
-            columns={GOOGLE_ADS_CAMPAIGNS_COLUMNS}
-            title="Google Ads Campaigns"
-            description="Campaign performance metrics"
-            searchable={true}
-            sortable={true}
-            paginated={false}
-            highlightRow={(row) => row.status === 'Paused'}
+          <MCPCampaignTable
+            enableMCP={true}
+            showSource={true}
+            autoRefresh={true}
+            refreshInterval={300000}
+            initialPageSize={25}
+            className="shadow-lg"
           />
         </div>
 

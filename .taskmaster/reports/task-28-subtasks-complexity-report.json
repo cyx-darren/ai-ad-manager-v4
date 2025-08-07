@@ -1,0 +1,21 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-03T13:50:00.431Z",
+		"tasksAnalyzed": 1,
+		"totalTasks": 31,
+		"analysisCount": 1,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 28,
+			"taskTitle": "Authentication & State Integration",
+			"complexityScore": 8,
+			"recommendedSubtasks": 10,
+			"expansionPrompt": "Expand this task into granular subtasks covering: (1) detailed integration of Supabase authentication with MCP client, (2) secure credential storage and rotation, (3) robust state management and synchronization patterns, (4) multi-property support logic, (5) permission and scope validation, (6) offline and error handling, (7) session lifecycle management, (8) context updates for dashboard, (9) race condition mitigation, and (10) comprehensive integration testing.",
+			"reasoning": "This task involves integrating two complex systems (Supabase Auth and MCP client), secure credential handling, multi-property support, and robust state management. Each area requires careful design to ensure security, maintainability, and reliability, with multiple dependencies and potential for subtle bugs. Industry best practices recommend breaking down such integrations into focused, testable units to manage complexity and risk. The current 8 subtasks are well-structured but could be further refined to address edge cases, error handling, and testing in more detail, justifying a high complexity score and a recommendation to expand to at least 10 subtasks."
+		}
+	]
+}

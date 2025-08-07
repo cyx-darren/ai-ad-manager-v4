@@ -1,447 +1,492 @@
 /**
- * MCP Connection Management Hooks
+ * React Hooks for Real-time Connection Monitoring
  * 
- * This file provides React hooks for managing MCP client connections,
- * including connection, disconnection, and reconnection operations.
+ * Provides React hooks for connection monitoring, network quality assessment,
+ * latency tracking, and bandwidth monitoring.
  */
 
-'use client';
-
-import { useCallback, useState, useRef } from 'react';
-import { useMCPContext, useMCPClient, useMCPStatus } from '../context';
-import { MCPConnectionState } from '../client';
-
-// ============================================================================
-// TYPES AND INTERFACES
-// ============================================================================
+import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  ConnectionState,
+  NetworkQuality,
+  ConnectionQualityMetrics,
+  ConnectionHealth,
+  ConnectionEvent,
+  MonitoringState,
+  ConnectionEventType,
+  WebSocketMonitorConfig,
+  NetworkMonitorConfig
+} from '../types/connection';
 
 /**
- * Connection operation result
+ * Hook for real-time connection monitoring
  */
-export interface ConnectionResult {
-  success: boolean;
-  error?: Error;
-  duration?: number;
-  timestamp: Date;
+export interface UseConnectionMonitorResult {
+  /** Current connection state */
+  connectionState: ConnectionState;
+  /** Current quality metrics */
+  metrics: ConnectionQualityMetrics;
+  /** Connection health information */
+  health: ConnectionHealth;
+  /** Whether monitoring is active */
+  isMonitoring: boolean;
+  /** Whether connection is healthy */
+  isHealthy: boolean;
+  /** Current network quality */
+  quality: NetworkQuality;
+  /** Start monitoring */
+  startMonitoring: () => Promise<void>;
+  /** Stop monitoring */
+  stopMonitoring: () => void;
+  /** Force reconnection */
+  reconnect: () => Promise<void>;
+  /** Get historical data */
+  getHistory: (timeWindow?: number) => any[];
+  /** Last error that occurred */
+  lastError?: string;
 }
 
-/**
- * Connection hook state
- */
-export interface ConnectionHookState {
-  isLoading: boolean;
-  lastResult?: ConnectionResult;
-  operationCount: number;
-}
-
-/**
- * Connection hook return type
- */
-export interface UseConnectReturn {
-  connect: () => Promise<ConnectionResult>;
-  isConnecting: boolean;
-  lastConnectResult?: ConnectionResult;
-  connectCount: number;
-  canConnect: boolean;
-}
-
-/**
- * Disconnect hook return type
- */
-export interface UseDisconnectReturn {
-  disconnect: () => Promise<ConnectionResult>;
-  isDisconnecting: boolean;
-  lastDisconnectResult?: ConnectionResult;
-  disconnectCount: number;
-  canDisconnect: boolean;
-}
-
-/**
- * Reconnect hook return type
- */
-export interface UseReconnectReturn {
-  reconnect: () => Promise<ConnectionResult>;
-  isReconnecting: boolean;
-  lastReconnectResult?: ConnectionResult;
-  reconnectCount: number;
-  canReconnect: boolean;
-}
-
-// ============================================================================
-// CONNECTION MANAGEMENT HOOKS
-// ============================================================================
-
-/**
- * Hook for managing MCP client connection
- * 
- * @example
- * ```tsx
- * function MyComponent() {
- *   const { connect, isConnecting, lastConnectResult, canConnect } = useConnect();
- *   
- *   const handleConnect = async () => {
- *     const result = await connect();
- *     if (result.success) {
- *       console.log('Connected successfully');
- *     } else {
- *       console.error('Connection failed:', result.error);
- *     }
- *   };
- *   
- *   return (
- *     <button 
- *       onClick={handleConnect} 
- *       disabled={!canConnect || isConnecting}
- *     >
- *       {isConnecting ? 'Connecting...' : 'Connect'}
- *     </button>
- *   );
- * }
- * ```
- */
-export const useConnect = (): UseConnectReturn => {
-  const { connect: contextConnect } = useMCPContext();
-  const status = useMCPStatus();
-  const [state, setState] = useState<ConnectionHookState>({
-    isLoading: false,
-    operationCount: 0
+export const useConnectionMonitor = (
+  wsConfig?: Partial<WebSocketMonitorConfig>,
+  networkConfig?: Partial<NetworkMonitorConfig>
+): UseConnectionMonitorResult => {
+  const [connectionState, setConnectionState] = useState<ConnectionState>('disconnected');
+  const [metrics, setMetrics] = useState<ConnectionQualityMetrics>({
+    latency: 0,
+    jitter: 0,
+    downloadBandwidth: 0,
+    uploadBandwidth: 0,
+    packetLoss: 0,
+    quality: 'unknown',
+    qualityConfidence: 0,
+    timestamp: Date.now()
   });
-  const operationIdRef = useRef<string | null>(null);
+  const [health, setHealth] = useState<ConnectionHealth>({
+    healthScore: 0,
+    isHealthy: false,
+    uptime: 0,
+    downtime: 0,
+    availability: 0,
+    failureCount: 0,
+    recoveryCount: 0,
+    lastConnected: 0,
+    lastDisconnected: 0,
+    stability: 'unknown'
+  });
+  const [isMonitoring, setIsMonitoring] = useState(false);
+  const [lastError, setLastError] = useState<string>();
 
-  const connect = useCallback(async (): Promise<ConnectionResult> => {
-    if (state.isLoading) {
-      throw new Error('Connection operation already in progress');
-    }
+  const monitorRef = useRef<any>(null);
 
-    const operationId = `connect-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    operationIdRef.current = operationId;
-    const startTime = Date.now();
+  // Initialize monitor on mount
+  useEffect(() => {
+    // Dynamic import to avoid SSR issues
+    const initMonitor = async () => {
+      const { createConnectionMonitor } = await import('../utils/connectionMonitor');
+      monitorRef.current = createConnectionMonitor(wsConfig, networkConfig);
 
-    setState(prev => ({
-      ...prev,
-      isLoading: true,
-      operationCount: prev.operationCount + 1
-    }));
+      // Set up event listeners
+      monitorRef.current.on('state_change', (event: ConnectionEvent) => {
+        setConnectionState(event.state);
+        if (event.error) {
+          setLastError(event.error.message);
+        }
+      });
 
-    try {
-      await contextConnect();
-      
-      const result: ConnectionResult = {
-        success: true,
-        duration: Date.now() - startTime,
-        timestamp: new Date()
-      };
+      monitorRef.current.on('metrics_update', (event: ConnectionEvent) => {
+        if (event.metrics) {
+          setMetrics(event.metrics);
+        }
+      });
 
-      // Only update state if this is still the current operation
-      if (operationIdRef.current === operationId) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          lastResult: result
-        }));
+      monitorRef.current.on('error', (event: ConnectionEvent) => {
+        if (event.error) {
+          setLastError(event.error.message);
+        }
+      });
+    };
+
+    initMonitor();
+
+    return () => {
+      if (monitorRef.current) {
+        monitorRef.current.stopMonitoring();
       }
+    };
+  }, []);
 
-      return result;
-    } catch (error) {
-      const result: ConnectionResult = {
-        success: false,
-        error: error as Error,
-        duration: Date.now() - startTime,
-        timestamp: new Date()
-      };
+  // Update health periodically
+  useEffect(() => {
+    if (!isMonitoring || !monitorRef.current) return;
 
-      // Only update state if this is still the current operation
-      if (operationIdRef.current === operationId) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          lastResult: result
-        }));
-      }
+    const interval = setInterval(() => {
+      const currentHealth = monitorRef.current.getHealth();
+      setHealth(currentHealth);
+    }, 5000);
 
-      return result;
+    return () => clearInterval(interval);
+  }, [isMonitoring]);
+
+  const startMonitoring = useCallback(async () => {
+    if (monitorRef.current) {
+      await monitorRef.current.startMonitoring();
+      setIsMonitoring(true);
     }
-  }, [contextConnect, state.isLoading]);
+  }, []);
 
-  // Determine if connection is possible
-  const canConnect = !status.isConnected && !status.isConnecting && !state.isLoading;
+  const stopMonitoring = useCallback(() => {
+    if (monitorRef.current) {
+      monitorRef.current.stopMonitoring();
+      setIsMonitoring(false);
+    }
+  }, []);
+
+  const reconnect = useCallback(async () => {
+    if (monitorRef.current) {
+      await monitorRef.current.reconnect();
+    }
+  }, []);
+
+  const getHistory = useCallback((timeWindow?: number) => {
+    if (monitorRef.current) {
+      return monitorRef.current.getHistory(timeWindow);
+    }
+    return [];
+  }, []);
 
   return {
-    connect,
-    isConnecting: state.isLoading,
-    lastConnectResult: state.lastResult,
-    connectCount: state.operationCount,
-    canConnect
-  };
-};
-
-/**
- * Hook for managing MCP client disconnection
- * 
- * @example
- * ```tsx
- * function MyComponent() {
- *   const { disconnect, isDisconnecting, canDisconnect } = useDisconnect();
- *   
- *   const handleDisconnect = async () => {
- *     const result = await disconnect();
- *     if (result.success) {
- *       console.log('Disconnected successfully');
- *     }
- *   };
- *   
- *   return (
- *     <button 
- *       onClick={handleDisconnect} 
- *       disabled={!canDisconnect || isDisconnecting}
- *     >
- *       {isDisconnecting ? 'Disconnecting...' : 'Disconnect'}
- *     </button>
- *   );
- * }
- * ```
- */
-export const useDisconnect = (): UseDisconnectReturn => {
-  const { disconnect: contextDisconnect } = useMCPContext();
-  const status = useMCPStatus();
-  const [state, setState] = useState<ConnectionHookState>({
-    isLoading: false,
-    operationCount: 0
-  });
-  const operationIdRef = useRef<string | null>(null);
-
-  const disconnect = useCallback(async (): Promise<ConnectionResult> => {
-    if (state.isLoading) {
-      throw new Error('Disconnection operation already in progress');
-    }
-
-    const operationId = `disconnect-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    operationIdRef.current = operationId;
-    const startTime = Date.now();
-
-    setState(prev => ({
-      ...prev,
-      isLoading: true,
-      operationCount: prev.operationCount + 1
-    }));
-
-    try {
-      await contextDisconnect();
-      
-      const result: ConnectionResult = {
-        success: true,
-        duration: Date.now() - startTime,
-        timestamp: new Date()
-      };
-
-      // Only update state if this is still the current operation
-      if (operationIdRef.current === operationId) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          lastResult: result
-        }));
-      }
-
-      return result;
-    } catch (error) {
-      const result: ConnectionResult = {
-        success: false,
-        error: error as Error,
-        duration: Date.now() - startTime,
-        timestamp: new Date()
-      };
-
-      // Only update state if this is still the current operation
-      if (operationIdRef.current === operationId) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          lastResult: result
-        }));
-      }
-
-      return result;
-    }
-  }, [contextDisconnect, state.isLoading]);
-
-  // Determine if disconnection is possible
-  const canDisconnect = status.isConnected && !state.isLoading;
-
-  return {
-    disconnect,
-    isDisconnecting: state.isLoading,
-    lastDisconnectResult: state.lastResult,
-    disconnectCount: state.operationCount,
-    canDisconnect
-  };
-};
-
-/**
- * Hook for managing MCP client reconnection
- * 
- * @example
- * ```tsx
- * function MyComponent() {
- *   const { reconnect, isReconnecting, lastReconnectResult } = useReconnect();
- *   
- *   const handleReconnect = async () => {
- *     const result = await reconnect();
- *     if (result.success) {
- *       console.log(`Reconnected in ${result.duration}ms`);
- *     }
- *   };
- *   
- *   return (
- *     <button onClick={handleReconnect} disabled={isReconnecting}>
- *       {isReconnecting ? 'Reconnecting...' : 'Reconnect'}
- *     </button>
- *   );
- * }
- * ```
- */
-export const useReconnect = (): UseReconnectReturn => {
-  const { reconnect: contextReconnect } = useMCPContext();
-  const status = useMCPStatus();
-  const [state, setState] = useState<ConnectionHookState>({
-    isLoading: false,
-    operationCount: 0
-  });
-  const operationIdRef = useRef<string | null>(null);
-
-  const reconnect = useCallback(async (): Promise<ConnectionResult> => {
-    if (state.isLoading) {
-      throw new Error('Reconnection operation already in progress');
-    }
-
-    const operationId = `reconnect-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    operationIdRef.current = operationId;
-    const startTime = Date.now();
-
-    setState(prev => ({
-      ...prev,
-      isLoading: true,
-      operationCount: prev.operationCount + 1
-    }));
-
-    try {
-      await contextReconnect();
-      
-      const result: ConnectionResult = {
-        success: true,
-        duration: Date.now() - startTime,
-        timestamp: new Date()
-      };
-
-      // Only update state if this is still the current operation
-      if (operationIdRef.current === operationId) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          lastResult: result
-        }));
-      }
-
-      return result;
-    } catch (error) {
-      const result: ConnectionResult = {
-        success: false,
-        error: error as Error,
-        duration: Date.now() - startTime,
-        timestamp: new Date()
-      };
-
-      // Only update state if this is still the current operation
-      if (operationIdRef.current === operationId) {
-        setState(prev => ({
-          ...prev,
-          isLoading: false,
-          lastResult: result
-        }));
-      }
-
-      return result;
-    }
-  }, [contextReconnect, state.isLoading]);
-
-  // Determine if reconnection is possible
-  const canReconnect = !status.isConnecting && !state.isLoading;
-
-  return {
+    connectionState,
+    metrics,
+    health,
+    isMonitoring,
+    isHealthy: health.isHealthy,
+    quality: metrics.quality,
+    startMonitoring,
+    stopMonitoring,
     reconnect,
-    isReconnecting: state.isLoading,
-    lastReconnectResult: state.lastResult,
-    reconnectCount: state.operationCount,
-    canReconnect
+    getHistory,
+    lastError
   };
 };
 
-// ============================================================================
-// COMBINED CONNECTION MANAGEMENT HOOK
-// ============================================================================
-
 /**
- * Combined connection management hook return type
+ * Hook for network quality monitoring
  */
-export interface UseConnectionManagementReturn {
-  connect: UseConnectReturn;
-  disconnect: UseDisconnectReturn;
-  reconnect: UseReconnectReturn;
-  isAnyOperationInProgress: boolean;
-  totalOperations: number;
+export interface UseNetworkQualityResult {
+  /** Current network quality */
+  quality: NetworkQuality;
+  /** Quality confidence score */
+  confidence: number;
+  /** Average latency */
+  latency: number;
+  /** Network jitter */
+  jitter: number;
+  /** Download bandwidth */
+  downloadBandwidth: number;
+  /** Upload bandwidth */
+  uploadBandwidth: number;
+  /** Whether quality is degraded */
+  isDegraded: boolean;
+  /** Quality trend direction */
+  trend: 'improving' | 'degrading' | 'stable';
 }
 
-/**
- * Combined hook for all connection management operations
- * 
- * @example
- * ```tsx
- * function ConnectionManager() {
- *   const { 
- *     connect, 
- *     disconnect, 
- *     reconnect, 
- *     isAnyOperationInProgress 
- *   } = useConnectionManagement();
- *   
- *   return (
- *     <div>
- *       <button 
- *         onClick={connect.connect} 
- *         disabled={!connect.canConnect || isAnyOperationInProgress}
- *       >
- *         Connect
- *       </button>
- *       <button 
- *         onClick={disconnect.disconnect} 
- *         disabled={!disconnect.canDisconnect || isAnyOperationInProgress}
- *       >
- *         Disconnect
- *       </button>
- *       <button 
- *         onClick={reconnect.reconnect} 
- *         disabled={!reconnect.canReconnect || isAnyOperationInProgress}
- *       >
- *         Reconnect
- *       </button>
- *     </div>
- *   );
- * }
- * ```
- */
-export const useConnectionManagement = (): UseConnectionManagementReturn => {
-  const connect = useConnect();
-  const disconnect = useDisconnect();
-  const reconnect = useReconnect();
+export const useNetworkQuality = (): UseNetworkQualityResult => {
+  const [quality, setQuality] = useState<NetworkQuality>('unknown');
+  const [confidence, setConfidence] = useState(0);
+  const [latency, setLatency] = useState(0);
+  const [jitter, setJitter] = useState(0);
+  const [downloadBandwidth, setDownloadBandwidth] = useState(0);
+  const [uploadBandwidth, setUploadBandwidth] = useState(0);
+  const [previousQuality, setPreviousQuality] = useState<NetworkQuality>('unknown');
 
-  const isAnyOperationInProgress = connect.isConnecting || disconnect.isDisconnecting || reconnect.isReconnecting;
-  const totalOperations = connect.connectCount + disconnect.disconnectCount + reconnect.reconnectCount;
+  const monitorRef = useRef<any>(null);
+
+  useEffect(() => {
+    const initMonitor = async () => {
+      const { getGlobalConnectionMonitor } = await import('../utils/connectionMonitor');
+      monitorRef.current = getGlobalConnectionMonitor();
+
+      monitorRef.current.on('metrics_update', (event: ConnectionEvent) => {
+        if (event.metrics) {
+          setQuality(event.metrics.quality);
+          setConfidence(event.metrics.qualityConfidence);
+          setLatency(event.metrics.latency);
+          setJitter(event.metrics.jitter);
+          setDownloadBandwidth(event.metrics.downloadBandwidth);
+          setUploadBandwidth(event.metrics.uploadBandwidth);
+        }
+      });
+
+      monitorRef.current.on('quality_change', (event: ConnectionEvent) => {
+        if (event.previousMetrics) {
+          setPreviousQuality(event.previousMetrics.quality);
+        }
+      });
+    };
+
+    initMonitor();
+  }, []);
+
+  const isDegraded = quality === 'poor' || quality === 'critical';
+  
+  const trend = (() => {
+    const qualityOrder: NetworkQuality[] = ['critical', 'poor', 'fair', 'good', 'excellent'];
+    const currentIndex = qualityOrder.indexOf(quality);
+    const previousIndex = qualityOrder.indexOf(previousQuality);
+    
+    if (currentIndex > previousIndex) return 'improving';
+    if (currentIndex < previousIndex) return 'degrading';
+    return 'stable';
+  })();
 
   return {
-    connect,
-    disconnect,
-    reconnect,
-    isAnyOperationInProgress,
-    totalOperations
+    quality,
+    confidence,
+    latency,
+    jitter,
+    downloadBandwidth,
+    uploadBandwidth,
+    isDegraded,
+    trend
   };
 };
+
+/**
+ * Hook for connection health monitoring
+ */
+export interface UseConnectionHealthResult {
+  /** Overall health score (0-100) */
+  healthScore: number;
+  /** Whether connection is healthy */
+  isHealthy: boolean;
+  /** Current uptime */
+  uptime: number;
+  /** Availability percentage */
+  availability: number;
+  /** Connection stability */
+  stability: 'stable' | 'unstable' | 'very_unstable' | 'unknown';
+  /** Number of failures */
+  failureCount: number;
+  /** Number of recoveries */
+  recoveryCount: number;
+  /** Health status text */
+  statusText: string;
+  /** Health color indicator */
+  statusColor: string;
+}
+
+export const useConnectionHealth = (): UseConnectionHealthResult => {
+  const [health, setHealth] = useState<ConnectionHealth>({
+    healthScore: 0,
+    isHealthy: false,
+    uptime: 0,
+    downtime: 0,
+    availability: 0,
+    failureCount: 0,
+    recoveryCount: 0,
+    lastConnected: 0,
+    lastDisconnected: 0,
+    stability: 'unknown'
+  });
+
+  const monitorRef = useRef<any>(null);
+
+  useEffect(() => {
+    const initMonitor = async () => {
+      const { getGlobalConnectionMonitor } = await import('../utils/connectionMonitor');
+      monitorRef.current = getGlobalConnectionMonitor();
+
+      // Update health periodically
+      const interval = setInterval(() => {
+        const currentHealth = monitorRef.current.getHealth();
+        setHealth(currentHealth);
+      }, 5000);
+
+      return () => clearInterval(interval);
+    };
+
+    initMonitor();
+  }, []);
+
+  const statusText = (() => {
+    if (health.healthScore >= 90) return 'Excellent';
+    if (health.healthScore >= 70) return 'Good';
+    if (health.healthScore >= 50) return 'Fair';
+    if (health.healthScore >= 30) return 'Poor';
+    return 'Critical';
+  })();
+
+  const statusColor = (() => {
+    if (health.healthScore >= 90) return '#10b981'; // green
+    if (health.healthScore >= 70) return '#f59e0b'; // yellow
+    if (health.healthScore >= 50) return '#f97316'; // orange
+    return '#ef4444'; // red
+  })();
+
+  return {
+    healthScore: health.healthScore,
+    isHealthy: health.isHealthy,
+    uptime: health.uptime,
+    availability: health.availability,
+    stability: health.stability,
+    failureCount: health.failureCount,
+    recoveryCount: health.recoveryCount,
+    statusText,
+    statusColor
+  };
+};
+
+/**
+ * Hook for latency monitoring
+ */
+export interface UseLatencyMonitorResult {
+  /** Current latency */
+  currentLatency: number;
+  /** Average latency */
+  averageLatency: number;
+  /** Latency jitter */
+  jitter: number;
+  /** Whether latency is high */
+  isHighLatency: boolean;
+  /** Latency trend */
+  trend: 'improving' | 'degrading' | 'stable';
+  /** Latency history */
+  history: number[];
+}
+
+export const useLatencyMonitor = (thresholdMs: number = 200): UseLatencyMonitorResult => {
+  const [currentLatency, setCurrentLatency] = useState(0);
+  const [averageLatency, setAverageLatency] = useState(0);
+  const [jitter, setJitter] = useState(0);
+  const [history, setHistory] = useState<number[]>([]);
+
+  const monitorRef = useRef<any>(null);
+
+  useEffect(() => {
+    const initMonitor = async () => {
+      const { getGlobalConnectionMonitor } = await import('../utils/connectionMonitor');
+      monitorRef.current = getGlobalConnectionMonitor();
+
+      monitorRef.current.on('metrics_update', (event: ConnectionEvent) => {
+        if (event.metrics) {
+          setCurrentLatency(event.metrics.latency);
+          setJitter(event.metrics.jitter);
+          
+          // Update history
+          setHistory(prev => {
+            const newHistory = [...prev, event.metrics!.latency].slice(-20); // Keep last 20 samples
+            const avg = newHistory.reduce((sum, val) => sum + val, 0) / newHistory.length;
+            setAverageLatency(avg);
+            return newHistory;
+          });
+        }
+      });
+    };
+
+    initMonitor();
+  }, []);
+
+  const isHighLatency = currentLatency > thresholdMs;
+  
+  const trend = (() => {
+    if (history.length < 5) return 'stable';
+    
+    const recent = history.slice(-5);
+    const older = history.slice(-10, -5);
+    
+    if (older.length === 0) return 'stable';
+    
+    const recentAvg = recent.reduce((sum, val) => sum + val, 0) / recent.length;
+    const olderAvg = older.reduce((sum, val) => sum + val, 0) / older.length;
+    
+    const change = recentAvg - olderAvg;
+    const threshold = olderAvg * 0.1; // 10% change threshold
+    
+    if (change > threshold) return 'degrading';
+    if (change < -threshold) return 'improving';
+    return 'stable';
+  })();
+
+  return {
+    currentLatency,
+    averageLatency,
+    jitter,
+    isHighLatency,
+    trend,
+    history
+  };
+};
+
+/**
+ * Hook for bandwidth monitoring
+ */
+export interface UseBandwidthMonitorResult {
+  /** Download bandwidth in Mbps */
+  downloadBandwidth: number;
+  /** Upload bandwidth in Mbps */
+  uploadBandwidth: number;
+  /** Whether bandwidth is sufficient */
+  isSufficientBandwidth: boolean;
+  /** Bandwidth classification */
+  classification: 'high' | 'medium' | 'low' | 'very_low';
+  /** Whether bandwidth test is running */
+  isTestingBandwidth: boolean;
+  /** Trigger manual bandwidth test */
+  testBandwidth: () => Promise<void>;
+}
+
+export const useBandwidthMonitor = (minimumMbps: number = 1): UseBandwidthMonitorResult => {
+  const [downloadBandwidth, setDownloadBandwidth] = useState(0);
+  const [uploadBandwidth, setUploadBandwidth] = useState(0);
+  const [isTestingBandwidth, setIsTestingBandwidth] = useState(false);
+
+  const monitorRef = useRef<any>(null);
+
+  useEffect(() => {
+    const initMonitor = async () => {
+      const { getGlobalConnectionMonitor } = await import('../utils/connectionMonitor');
+      monitorRef.current = getGlobalConnectionMonitor();
+
+      monitorRef.current.on('metrics_update', (event: ConnectionEvent) => {
+        if (event.metrics) {
+          setDownloadBandwidth(event.metrics.downloadBandwidth);
+          setUploadBandwidth(event.metrics.uploadBandwidth);
+        }
+      });
+
+      monitorRef.current.on('bandwidth_test_complete', () => {
+        setIsTestingBandwidth(false);
+      });
+    };
+
+    initMonitor();
+  }, []);
+
+  const isSufficientBandwidth = downloadBandwidth >= minimumMbps;
+  
+  const classification = (() => {
+    if (downloadBandwidth >= 10) return 'high';
+    if (downloadBandwidth >= 5) return 'medium';
+    if (downloadBandwidth >= 1) return 'low';
+    return 'very_low';
+  })() as 'high' | 'medium' | 'low' | 'very_low';
+
+  const testBandwidth = useCallback(async () => {
+    if (monitorRef.current && !isTestingBandwidth) {
+      setIsTestingBandwidth(true);
+      // The monitor will automatically update bandwidth and trigger the complete event
+    }
+  }, [isTestingBandwidth]);
+
+  return {
+    downloadBandwidth,
+    uploadBandwidth,
+    isSufficientBandwidth,
+    classification,
+    isTestingBandwidth,
+    testBandwidth
+  };
+};
+
+export default useConnectionMonitor;

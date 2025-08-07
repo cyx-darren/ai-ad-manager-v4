@@ -1,21 +1,45 @@
 {
 	"meta": {
-		"generatedAt": "2025-08-03T13:24:33.698Z",
+		"generatedAt": "2025-08-05T11:47:40.754Z",
 		"tasksAnalyzed": 1,
 		"totalTasks": 31,
-		"analysisCount": 1,
+		"analysisCount": 4,
 		"thresholdScore": 5,
 		"projectName": "Taskmaster",
 		"usedResearch": true
 	},
 	"complexityAnalysis": [
 		{
-			"taskId": 28,
-			"taskTitle": "Authentication & State Integration",
+			"taskId": 29,
+			"taskTitle": "Component Migration",
+			"complexityScore": 9,
+			"recommendedSubtasks": 12,
+			"expansionPrompt": "Break down the migration of dashboard components into granular subtasks for each component type (metric cards, donut charts, campaign table), including data source integration, UI adaptation, feature flagging, A/B testing, performance monitoring, and backward compatibility validation. Ensure each subtask covers data mapping, error handling, and regression testing.",
+			"reasoning": "Migrating multiple dashboard components from mock data to a new data source (MCP tools) while maintaining UI, functionality, and backward compatibility is a complex, high-risk task. It requires careful planning, modular implementation, and extensive testing to ensure data integrity, visual consistency, and minimal disruption. Industry best practices recommend decomposing such migrations into detailed subtasks for each component, covering data integration, UI adaptation, feature toggling, and comprehensive testing to manage dependencies and reduce risk[1][2][4]."
+		},
+		{
+			"taskId": 1,
+			"taskTitle": "Metric Cards Migration",
 			"complexityScore": 8,
 			"recommendedSubtasks": 10,
-			"expansionPrompt": "Expand this task by breaking down each integration and state management concern into atomic, testable units. Include subtasks for: (1) Supabase-MCP authentication handshake, (2) secure credential storage and rotation, (3) state context refactoring, (4) permission and error handling, (5) offline/connection fallback, (6) session lifecycle management, (7) multi-property context and switching, (8) state synchronization and race condition handling, (9) comprehensive integration testing, and (10) documentation and developer handoff.",
-			"reasoning": "This task involves integrating two authentication systems, secure credential management, complex state synchronization, multi-property support, and robust error/permission handling. Each area introduces significant branching logic, security considerations, and cross-cutting concerns, resulting in high cyclomatic and cognitive complexity[1][2][3]. The current 8 subtasks are well-structured but could be further decomposed to ensure atomicity, testability, and maintainability, especially given the high priority and risk profile."
+			"expansionPrompt": "Expand the migration of metric cards into subtasks for each card (e.g., Total Campaigns, Impressions, Click Rate, etc.), including MCP data integration, feature flag implementation, A/B testing setup, fallback logic, performance monitoring, and regression testing for each metric.",
+			"reasoning": "Each metric card represents a distinct data flow and UI element, requiring individual data mapping, integration, and validation. Incorporating feature flags, A/B testing, and fallback mechanisms adds to the complexity. Best practices dictate isolating each metric for migration and testing to ensure accuracy and maintainability[2][4]."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Donut Charts Migration",
+			"complexityScore": 7,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Decompose the donut chart migration into subtasks for each chart (Traffic Source Distribution, Device Breakdown, etc.), covering MCP data integration, real-time aggregation, UI consistency, interactive functionality, and regression testing.",
+			"reasoning": "Donut charts require real-time data aggregation and visual consistency, with each chart representing a unique data set and interaction pattern. Migrating these with live data sources and ensuring interactive features work as expected necessitates dedicated subtasks for each chart and aspect of the migration[2][4]."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Campaign Table Migration",
+			"complexityScore": 9,
+			"recommendedSubtasks": 8,
+			"expansionPrompt": "Expand the campaign table migration into subtasks for MCP data integration, server-side pagination, search, sorting, filtering, export functionality, complex data aggregation, UI adaptation, and comprehensive regression testing.",
+			"reasoning": "The campaign table involves complex data aggregation, advanced table features (pagination, search, sorting, filtering, export), and server-side logic. Migrating this component requires careful handling of data flows, user interactions, and performance considerations, warranting multiple focused subtasks[2][4]."
 		}
 	]
 }

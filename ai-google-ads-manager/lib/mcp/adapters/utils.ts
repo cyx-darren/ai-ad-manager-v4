@@ -468,6 +468,34 @@ export function formatPercentage(value: number, precision: number = 2): string {
   return `${value.toFixed(precision)}%`;
 }
 
+/**
+ * Format currency values - alias for formatNumber with currency
+ */
+export function formatCurrency(
+  value: number, 
+  currency: string = 'USD', 
+  locale: string = 'en-US'
+): string {
+  return formatNumber(value, { currency, locale });
+}
+
+/**
+ * Coerce value to number - alias for safeNumber
+ */
+export function coerceToNumber(value: any, fallback: number = 0): number {
+  return safeNumber(value, fallback);
+}
+
+/**
+ * Coerce value to string
+ */
+export function coerceToString(value: any, fallback: string = ''): string {
+  if (value === null || value === undefined) {
+    return fallback;
+  }
+  return String(value);
+}
+
 // ============================================================================
 // VALIDATION UTILITIES
 // ============================================================================
@@ -518,6 +546,109 @@ export function validateArrayData(data: any, minLength: number = 0): ValidationR
 
   if (data.length === 0) {
     warnings.push('Array is empty');
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
+/**
+ * Validate time series data structure
+ */
+export function validateTimeSeriesData(data: any[]): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (!Array.isArray(data)) {
+    errors.push('Time series data must be an array');
+    return { isValid: false, errors, warnings };
+  }
+
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    if (!item.date) {
+      errors.push(`Item at index ${i} missing required 'date' field`);
+    }
+    if (typeof item.value === 'undefined') {
+      errors.push(`Item at index ${i} missing required 'value' field`);
+    }
+    if (typeof item.value !== 'number' && item.value !== null) {
+      errors.push(`Item at index ${i} 'value' must be a number or null`);
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
+/**
+ * Validate bar chart data structure
+ */
+export function validateBarChartData(data: any[]): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (!Array.isArray(data)) {
+    errors.push('Bar chart data must be an array');
+    return { isValid: false, errors, warnings };
+  }
+
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    if (!item.category && !item.name && !item.label) {
+      errors.push(`Item at index ${i} missing category/name/label field`);
+    }
+    if (typeof item.value === 'undefined') {
+      errors.push(`Item at index ${i} missing required 'value' field`);
+    }
+    if (typeof item.value !== 'number' && item.value !== null) {
+      errors.push(`Item at index ${i} 'value' must be a number or null`);
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
+/**
+ * Validate donut chart data structure
+ */
+export function validateDonutChartData(data: any[]): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (!Array.isArray(data)) {
+    errors.push('Donut chart data must be an array');
+    return { isValid: false, errors, warnings };
+  }
+
+  let totalValue = 0;
+  for (let i = 0; i < data.length; i++) {
+    const item = data[i];
+    if (!item.category && !item.name && !item.label) {
+      errors.push(`Item at index ${i} missing category/name/label field`);
+    }
+    if (typeof item.value === 'undefined') {
+      errors.push(`Item at index ${i} missing required 'value' field`);
+    }
+    if (typeof item.value !== 'number' && item.value !== null) {
+      errors.push(`Item at index ${i} 'value' must be a number or null`);
+    } else if (typeof item.value === 'number') {
+      totalValue += item.value;
+    }
+  }
+
+  if (totalValue === 0) {
+    warnings.push('Total value is zero - chart may appear empty');
   }
 
   return {

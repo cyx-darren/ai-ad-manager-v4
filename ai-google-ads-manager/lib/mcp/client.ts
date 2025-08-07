@@ -286,7 +286,7 @@ export class MCPClient {
   constructor(config: MCPClientConfig = {}, events: MCPConnectionEvents = {}) {
     // Set default configuration with Phase 3 enhancements
     this.config = {
-      serverUrl: config.serverUrl || process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3004',
+      serverUrl: config.serverUrl || process.env.NEXT_PUBLIC_MCP_SERVER_URL || '/api/mcp',
       timeout: config.timeout || 30000,
       retryAttempts: config.retryAttempts || 5,
       retryDelay: config.retryDelay || 1000,
@@ -851,8 +851,8 @@ export class MCPClient {
       return;
     }
 
-    // Use simple HTTP client for now
-    if (this.config.serverUrl.startsWith('http')) {
+    // Use simple HTTP client for API routes or HTTP URLs
+    if (this.config.serverUrl.startsWith('/api') || this.config.serverUrl.startsWith('http')) {
       return this.connectViaHTTP();
     }
 
@@ -879,11 +879,14 @@ export class MCPClient {
         attempt: this.reconnectAttempts + 1
       });
       
-      this.enhancedLog('info', 'HTTP MCP connection established');
+      this.enhancedLog('info', 'HTTP MCP connection established', {
+        serverUrl: this.config.serverUrl
+      });
       
     } catch (error) {
       this.setState(MCPConnectionState.ERROR);
       this.events.onError?.(error as Error, 'HTTP connection');
+      this.enhancedLog('error', 'HTTP MCP connection failed', { error });
       throw error;
     }
   }
@@ -2635,7 +2638,7 @@ export function createMCPClient(
  */
 export function createProductionMCPClient(events?: MCPConnectionEvents): MCPClient {
   return new MCPClient({
-    serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3004',
+    serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || '/api/mcp',
     timeout: 30000,
     retryAttempts: 5,
     retryDelay: 2000,

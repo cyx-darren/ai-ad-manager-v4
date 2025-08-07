@@ -9,7 +9,7 @@
 
 import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { useMCPClient, useMCPStatus } from '../context';
-import { useGA4Data, useRealTimeMetrics } from './dataHooks';
+import { useGA4Data, useMetrics } from './dataHooks';
 import { useCachedData } from './advancedHooks';
 import { useConnectionNotifications } from './notificationHooks';
 
@@ -508,7 +508,7 @@ export const useDashboardIntegration = (
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Real-time metrics if enabled
-  const { metrics } = useRealTimeMetrics(
+  const { metrics } = useMetrics(
     finalConfig.enableRealTime ? {
       metrics: ['sessions', 'users', 'conversions'],
       updateFrequency: 5000
@@ -1007,32 +1007,12 @@ export const usePerformanceMetrics = (
  * Hook for debugging React hook behavior
  * 
  * @example
- * ```tsx
- * function DebuggableComponent({ userId }: { userId: string }) {
- *   const debugInfo = useHookDebugger('DebuggableComponent', [userId]);
- *   const [user, setUser] = useState(null);
- *   
- *   // Your component logic here
- *   
- *   return (
- *     <div>
- *       {/* Your component UI */}
- *       {process.env.NODE_ENV === 'development' && (
- *         <div className="debug-panel">
- *           <h4>Debug Info</h4>
- *           <div>Renders: {debugInfo.renderCount}</div>
- *           <div>Avg Render Time: {debugInfo.averageRenderTime.toFixed(2)}ms</div>
- *           <div>Dependency Changes: {debugInfo.dependencyChanges}</div>
- *           <div>Errors: {debugInfo.errorCount}</div>
- *           {debugInfo.warnings.length > 0 && (
- *             <div>Warnings: {debugInfo.warnings.join(', ')}</div>
- *           )}
- *         </div>
- *       )}
- *     </div>
- *   );
+ * Example usage:
+ * function DebuggableComponent(props) {
+ *   const debugInfo = useHookDebugger('DebuggableComponent', [props.userId]);
+ *   // Returns render count, timing, dependency changes, and error info
+ *   // Can be displayed in development mode for debugging
  * }
- * ```
  */
 export const useHookDebugger = (
   hookName: string,

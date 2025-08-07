@@ -1,11 +1,20 @@
 // Dashboard Components - using named exports
 export { DashboardLayout } from './DashboardLayout';
 export { MetricCard, LoadingMetricCard, ErrorMetricCard } from './MetricCard';
+export { MCPMetricCard, TotalCampaignsCard } from './MCPMetricCard';
 export { AlertBanner, SuccessAlert, WarningAlert, InfoAlert, ErrorAlert } from './AlertBanner';
 export { TableComponent, GA4_PAGES_COLUMNS, GA4_TRAFFIC_SOURCES_COLUMNS, GOOGLE_ADS_CAMPAIGNS_COLUMNS } from './TableComponent';
+export { MCPCampaignTable } from './MCPCampaignTable';
+export { AdvancedCampaignFilters } from './AdvancedCampaignFilters';
+export { EnhancedSortingControls, SortableColumnHeader } from './EnhancedSortingControls';
+export { EnhancedPaginationControls } from './EnhancedPaginationControls';
+export { EnhancedExportControls } from './EnhancedExportControls';
+export { AdvancedTableControls } from './AdvancedTableControls';
+export { VirtualizedCampaignTable } from './VirtualizedCampaignTable';
 export { ChartContainer, SmallChartContainer, MediumChartContainer, LargeChartContainer, ChartContainerWithMenu } from './ChartContainer';
 export { DateRangePicker } from './DateRangePicker';
 export { SettingsPanel } from './SettingsPanel';
+export { PropertyControls, withPropertyControls } from './PropertyControls';
 
 // Chart Components - Direct exports (Next.js 14 compatible)
 export { 
@@ -24,6 +33,13 @@ export {
   GeographicDonutChart,
   ConversionFunnelDonutChart
 } from './DonutChart';
+export { 
+  MCPDonutChart,
+  TrafficSourceMCPDonutChart,
+  DeviceBreakdownMCPDonutChart,
+  CampaignTypeMCPDonutChart,
+  GeographicMCPDonutChart
+} from './MCPDonutChart';
 
 export { 
   LineChart,

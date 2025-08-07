@@ -247,7 +247,6 @@ export {
   
   // Field mapping
   mapFields,
-  GA4_TO_COMPONENT_MAPPING,
   
   // Type coercion
   coerceType,
@@ -437,7 +436,26 @@ export function createMCPResponseAdapter<TData, TOutput>(
  * Pre-configured field mappings for common transformations
  */
 export const COMMON_FIELD_MAPPINGS = {
-  GA4_TO_COMPONENT: GA4_TO_COMPONENT_MAPPING,
+  GA4_TO_COMPONENT: {
+    'ga:sessions': 'sessions',
+    'ga:users': 'users',
+    'ga:pageviews': 'pageviews',
+    'ga:sessionDuration': 'sessionDuration',
+    'ga:bounceRate': 'bounceRate',
+    'ga:goalCompletions': 'conversions',
+    'ga:transactionRevenue': 'revenue',
+    'dimensions.date': 'date',
+    'dimensions.country': 'country',
+    'dimensions.deviceCategory': 'deviceCategory',
+    'dimensions.channelGrouping': 'channelGrouping',
+    'metrics.sessions': 'sessions',
+    'metrics.users': 'users',
+    'metrics.screenPageViews': 'pageviews',
+    'metrics.averageSessionDuration': 'sessionDuration',
+    'metrics.bounceRate': 'bounceRate',
+    'metrics.conversions': 'conversions',
+    'metrics.totalRevenue': 'revenue'
+  } as FieldMapping,
   
   // Google Ads to component mapping
   GOOGLE_ADS_TO_COMPONENT: {

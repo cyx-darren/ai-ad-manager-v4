@@ -37,6 +37,7 @@ import { initializeCORSSecurity, getCORSManager } from './utils/corsSecurityHead
 import { initializeProductionCache, getProductionCache, shutdownProductionCache } from './utils/productionCache.js';
 import { initializeAuthentication, getAuthManager, getGA4Client } from './utils/googleAuth.js';
 import { startHttpHealthServer, stopHttpHealthServer } from './utils/httpHealthServer.js';
+import { HttpMcpBridge } from './utils/httpMcpBridge.js';
 import { performanceMonitor } from './utils/performanceMetrics.js';
 import { initializeGA4DataClient, getGA4DataClient } from './utils/ga4DataClient.js';
 import { 
@@ -2383,6 +2384,28 @@ async function main(): Promise<void> {
     // Create server instance
     const server = await createServer();
     const transport = new StdioServerTransport();
+    
+    // Create HTTP MCP Bridge for React frontend
+    const httpMcpBridge = new HttpMcpBridge(server, {
+      port: 3004,
+      host: 'localhost'
+    });
+    
+    // Add HTTP MCP Bridge to lifecycle
+    lifecycleManager.addHook({
+      name: 'http-mcp-bridge',
+      priority: 3,
+      startup: async () => {
+        logger.info('Starting HTTP MCP Bridge...');
+        await httpMcpBridge.start();
+        logger.info('✅ HTTP MCP Bridge started - React frontend can now connect');
+      },
+      shutdown: async () => {
+        logger.info('Stopping HTTP MCP Bridge...');
+        await httpMcpBridge.stop();
+        logger.info('✅ HTTP MCP Bridge stopped');
+      },
+    });
     
     // Add transport connection to lifecycle
     lifecycleManager.addHook({
