@@ -1,7 +1,14 @@
 'use client'
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, useCallback, useEffect, useMemo } from 'react'
 import { useGA4DataService } from '@/lib/ga4ApiClient'
+import { useMCPClient, useMCPStatus } from '@/lib/mcp/context'
+import { useGA4Data, useMetrics } from '@/lib/mcp/hooks/dataHooks'
+import { useMCPContext } from '@/lib/mcp/context'
+import { dateRangeSyncManager } from '@/lib/mcp/utils/dateRangeSync'
+import { filterSyncManager } from '@/lib/mcp/utils/filterSync'
+import { useRaceConditionHandler } from '@/lib/mcp/hooks/raceConditionHooks'
+import { useCrossComponentState } from '@/lib/mcp/hooks/crossComponentHooks'
 
 // Types for dashboard state
 export interface DateRange {
@@ -41,6 +48,15 @@ export interface ErrorStates {
   global: string | null
 }
 
+export interface MCPConnectionStatus {
+  isConnected: boolean
+  connectionState: 'disconnected' | 'connecting' | 'connected' | 'error' | 'reconnecting'
+  lastConnected: string | null
+  authStatus: 'authenticated' | 'unauthenticated' | 'pending' | 'error'
+  capabilities: string[]
+  error: string | null
+}
+
 export interface DashboardState {
   dateRange: DateRange
   filters: DashboardFilters
@@ -49,6 +65,7 @@ export interface DashboardState {
   errors: ErrorStates
   isOnline: boolean
   lastRefresh: string | null
+  mcpConnection: MCPConnectionStatus
 }
 
 // Action types for the reducer
@@ -61,6 +78,7 @@ export type DashboardAction =
   | { type: 'CLEAR_ERRORS' }
   | { type: 'SET_ONLINE_STATUS'; payload: boolean }
   | { type: 'SET_LAST_REFRESH'; payload: string }
+  | { type: 'SET_MCP_CONNECTION'; payload: Partial<MCPConnectionStatus> }
   | { type: 'RESET_STATE' }
 
 // Initial state
@@ -106,7 +124,15 @@ const initialState: DashboardState = {
     global: null
   },
   isOnline: true,
-  lastRefresh: null
+  lastRefresh: null,
+  mcpConnection: {
+    isConnected: false,
+    connectionState: 'disconnected',
+    lastConnected: null,
+    authStatus: 'unauthenticated',
+    capabilities: [],
+    error: null
+  }
 }
 
 // Reducer function
@@ -179,6 +205,15 @@ function dashboardReducer(state: DashboardState, action: DashboardAction): Dashb
         lastRefresh: action.payload
       }
     
+    case 'SET_MCP_CONNECTION':
+      return {
+        ...state,
+        mcpConnection: {
+          ...state.mcpConnection,
+          ...action.payload
+        }
+      }
+    
     case 'RESET_STATE':
       return {
         ...initialState,
@@ -219,8 +254,23 @@ export interface DashboardContextType {
   refresh: () => Promise<void>
   reset: () => void
   
-  // Individual data fetching functions - Phase B
+  // MCP Connection actions
+  setMCPConnection: (connection: Partial<MCPConnectionStatus>) => void
+  connectMCP: () => Promise<void>
+  disconnectMCP: () => Promise<void>
+  refreshMCPAuth: () => Promise<void>
+  
+  // Individual data fetching functions - Phase B (Legacy GA4 + MCP)
   fetchData: {
+    sessions: () => Promise<void>
+    trafficSources: () => Promise<void>
+    topPages: () => Promise<void>
+    conversions: () => Promise<void>
+    all: () => Promise<void>
+  }
+  
+  // MCP data fetching functions
+  fetchDataMCP: {
     sessions: () => Promise<void>
     trafficSources: () => Promise<void>
     topPages: () => Promise<void>
@@ -236,44 +286,166 @@ const DashboardContext = createContext<DashboardContextType | null>(null)
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(dashboardReducer, initialState)
   const dataService = useGA4DataService()
+  
+  // Race condition protection for dashboard state
+  const raceConditionHandler = useRaceConditionHandler('dashboard-state', {
+    enableQueueing: true,
+    enableVersioning: true,
+    enableConflictResolution: true,
+    defaultResolutionStrategy: 'last_writer_wins',
+    autoResolveSimple: true
+  });
+
+  // Cross-component state consistency
+  const crossComponentHandler = useCrossComponentState({
+    componentId: 'dashboard-context',
+    componentName: 'Dashboard Context',
+    componentType: 'layout',
+    enableValidation: true,
+    enableEvents: true,
+    enableDependencyTracking: true,
+    autoRepair: true
+  }, state);
+  
+  // MCP Integration
+  const mcpClient = useMCPClient()
+  const mcpStatus = useMCPStatus()
+  const { connect, disconnect } = useMCPContext()
 
   // 🐛 DEBUG: Add console log to trace re-renders
   console.log('🔄 DashboardProvider render - Date range:', state.dateRange)
+  console.log('🔗 MCP Status:', mcpStatus)
 
-  // Date range management
-  const setDateRange = useCallback((dateRange: DateRange) => {
-    dispatch({ type: 'SET_DATE_RANGE', payload: dateRange })
-  }, [])
+  // Register dashboard component on mount
+  useEffect(() => {
+    crossComponentHandler.register();
+    
+    return () => {
+      crossComponentHandler.unregister();
+    };
+  }, [crossComponentHandler]);
+
+  // Date range management with synchronization and race condition protection
+  const setDateRange = useCallback(async (dateRange: DateRange) => {
+    // Validate and normalize the date range
+    const validation = dateRangeSyncManager.validateDateRange(dateRange);
+    let finalRange = dateRange;
+
+    if (!validation.isValid) {
+      if (validation.adjustedRange) {
+        finalRange = validation.adjustedRange;
+        console.warn('📅 Date range adjusted:', validation.warnings);
+      } else {
+        console.error('📅 Invalid date range:', validation.errors);
+        return; // Don't update if invalid and can't be corrected
+      }
+    }
+
+    // Normalize the range
+    finalRange = dateRangeSyncManager.normalizeDateRange(finalRange);
+
+    // Use race condition handler for safe update
+    const updateResult = await raceConditionHandler.safeUpdate(
+      finalRange,
+      'dateRange',
+      'user',
+      'normal'
+    );
+
+    if (updateResult.success) {
+      // Update state
+      dispatch({ type: 'SET_DATE_RANGE', payload: finalRange });
+      
+      // Update cross-component state
+      await crossComponentHandler.updateState({ ...state, dateRange: finalRange });
+      
+      // Persist the range
+      dateRangeSyncManager.persistDateRange(finalRange);
+      
+      // Publish cross-component event
+      crossComponentHandler.publishEvent(
+        'dashboard.dateRange.changed',
+        { newRange: finalRange, source: 'user' },
+        'state_change'
+      );
+      
+      console.log('📅 Date range updated and synced:', finalRange);
+    } else {
+      console.error('📅 Date range update failed:', updateResult.errors);
+      if (updateResult.conflicts) {
+        console.warn('📅 Date range conflicts detected:', updateResult.conflicts);
+      }
+    }
+  }, [raceConditionHandler, crossComponentHandler, state])
 
   const setPresetDateRange = useCallback((preset: 'last7days' | 'last30days' | 'last90days') => {
-    const endDate = new Date()
-    const startDate = new Date()
-    
-    switch (preset) {
-      case 'last7days':
-        startDate.setDate(endDate.getDate() - 7)
-        break
-      case 'last30days':
-        startDate.setDate(endDate.getDate() - 30)
-        break
-      case 'last90days':
-        startDate.setDate(endDate.getDate() - 90)
-        break
-    }
-    
-    const dateRange: DateRange = {
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
-      preset
-    }
-    
-    setDateRange(dateRange)
+    // Use the sync manager for standardized preset ranges
+    const dateRange = dateRangeSyncManager.getPresetDateRange(preset);
+    setDateRange(dateRange);
+    console.log('📅 Preset date range set:', preset, dateRange);
   }, [setDateRange])
 
-  // Filter management
-  const setFilters = useCallback((filters: Partial<DashboardFilters>) => {
-    dispatch({ type: 'SET_FILTERS', payload: filters })
-  }, [])
+  // Filter management with synchronization and race condition protection
+  const setFilters = useCallback(async (newFilters: Partial<DashboardFilters>) => {
+    // Merge with current filters
+    let mergedFilters: DashboardFilters = {
+      ...state.filters,
+      ...newFilters
+    };
+
+    // Apply filter dependencies
+    mergedFilters = filterSyncManager.applyFilterDependencies(mergedFilters);
+
+    // Validate and normalize the filters
+    const validation = filterSyncManager.validateFilters(mergedFilters);
+    let finalFilters = mergedFilters;
+
+    if (!validation.isValid) {
+      if (validation.adjustedFilters) {
+        finalFilters = validation.adjustedFilters;
+        console.warn('🔍 Filters adjusted:', validation.warnings);
+      } else {
+        console.error('🔍 Invalid filters:', validation.errors);
+        return; // Don't update if invalid and can't be corrected
+      }
+    }
+
+    // Normalize the filters
+    finalFilters = filterSyncManager.normalizeFilters(finalFilters);
+
+    // Use race condition handler for safe update
+    const updateResult = await raceConditionHandler.safeUpdate(
+      finalFilters,
+      'filter',
+      'user',
+      'normal'
+    );
+
+    if (updateResult.success) {
+      // Update state
+      dispatch({ type: 'SET_FILTERS', payload: finalFilters });
+      
+      // Update cross-component state
+      await crossComponentHandler.updateState({ ...state, filters: finalFilters });
+      
+      // Persist the filters
+      filterSyncManager.persistFilters(finalFilters);
+      
+      // Publish cross-component event
+      crossComponentHandler.publishEvent(
+        'dashboard.filters.changed',
+        { newFilters: finalFilters, source: 'user' },
+        'state_change'
+      );
+      
+      console.log('🔍 Filters updated and synced:', finalFilters);
+    } else {
+      console.error('🔍 Filter update failed:', updateResult.errors);
+      if (updateResult.conflicts) {
+        console.warn('🔍 Filter conflicts detected:', updateResult.conflicts);
+      }
+    }
+  }, [state.filters, raceConditionHandler, crossComponentHandler, state])
 
   const toggleGoogleAdsHighlight = useCallback(() => {
     setFilters({ highlightGoogleAds: !state.filters.highlightGoogleAds })
@@ -304,6 +476,52 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   // Data management
   const setData = useCallback((key: keyof DashboardData, data: any) => {
     dispatch({ type: 'SET_DATA', payload: { key, value: data } })
+  }, [])
+
+  // MCP connection management
+  const setMCPConnection = useCallback((connection: Partial<MCPConnectionStatus>) => {
+    dispatch({ type: 'SET_MCP_CONNECTION', payload: connection })
+  }, [])
+
+  // Monitor MCP status changes
+  useEffect(() => {
+    if (mcpStatus) {
+      setMCPConnection({
+        isConnected: mcpStatus.isConnected,
+        connectionState: mcpStatus.connectionState,
+        lastConnected: mcpStatus.lastConnected?.toISOString() || null,
+        authStatus: mcpStatus.authStatus || 'unauthenticated',
+        capabilities: mcpStatus.capabilities || [],
+        error: mcpStatus.error?.message || null
+      })
+    }
+  }, [mcpStatus, setMCPConnection])
+
+  const connectMCP = useCallback(async () => {
+    try {
+      setMCPConnection({ connectionState: 'connecting' })
+      await connect()
+    } catch (error) {
+      setMCPConnection({ 
+        connectionState: 'error', 
+        error: error instanceof Error ? error.message : 'Connection failed' 
+      })
+    }
+  }, [connect, setMCPConnection])
+
+  const disconnectMCP = useCallback(async () => {
+    try {
+      await disconnect()
+    } catch (error) {
+      setMCPConnection({ 
+        error: error instanceof Error ? error.message : 'Disconnection failed' 
+      })
+    }
+  }, [disconnect, setMCPConnection])
+
+  const refreshMCPAuth = useCallback(async () => {
+    // TODO: Implement MCP auth refresh if needed
+    console.log('🔄 MCP Auth refresh requested')
   }, [])
 
   // Data fetching functions - Phase B Implementation
@@ -420,12 +638,72 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       
       console.log(`🔌 API Connection: ${isConnected ? 'Connected' : 'Using fallback data'}`)
       
-      // Fetch all data types in parallel
+      // Fetch all data types in parallel (call functions directly to avoid dependency loops)
       await Promise.allSettled([
-        fetchSessionData(),
-        fetchTrafficSourceData(),
-        fetchTopPagesData(),
-        fetchConversionsData()
+        (async () => {
+          setLoading('timeSeries', true)
+          clearError('timeSeries')
+          try {
+            const sessions = await dataService.getSessionMetrics({
+              startDate: state.dateRange.startDate,
+              endDate: state.dateRange.endDate
+            })
+            setData('timeSeries', sessions)
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Session data fetch failed'
+            setError('timeSeries', errorMessage)
+          } finally {
+            setLoading('timeSeries', false)
+          }
+        })(),
+        (async () => {
+          setLoading('trafficSources', true)
+          clearError('trafficSources')
+          try {
+            const trafficSources = await dataService.getTrafficSources({
+              startDate: state.dateRange.startDate,
+              endDate: state.dateRange.endDate
+            })
+            setData('trafficSources', trafficSources)
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Traffic source data fetch failed'
+            setError('trafficSources', errorMessage)
+          } finally {
+            setLoading('trafficSources', false)
+          }
+        })(),
+        (async () => {
+          setLoading('topPages', true)
+          clearError('topPages')
+          try {
+            const pagePerformance = await dataService.getPagePerformance({
+              startDate: state.dateRange.startDate,
+              endDate: state.dateRange.endDate
+            })
+            setData('topPages', pagePerformance)
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Page performance data fetch failed'
+            setError('topPages', errorMessage)
+          } finally {
+            setLoading('topPages', false)
+          }
+        })(),
+        (async () => {
+          setLoading('conversions', true)
+          clearError('conversions')
+          try {
+            const conversions = await dataService.getConversions({
+              startDate: state.dateRange.startDate,
+              endDate: state.dateRange.endDate
+            })
+            setData('conversions', conversions)
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Conversion data fetch failed'
+            setError('conversions', errorMessage)
+          } finally {
+            setLoading('conversions', false)
+          }
+        })()
       ])
       
       console.log('✅ Dashboard refresh completed successfully')
@@ -441,10 +719,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     setGlobalLoading,
     clearErrors,
     setError,
-    fetchSessionData,
-    fetchTrafficSourceData,
-    fetchTopPagesData,
-    fetchConversionsData
+    setLoading,
+    clearError,
+    setData
   ])
 
   // Reset functionality
@@ -469,6 +746,58 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // Initialize date range synchronization on mount
+  useEffect(() => {
+    console.log('📅 Initializing date range synchronization...');
+    
+    // Try to restore persisted date range
+    const restoredRange = dateRangeSyncManager.restoreDateRange();
+    if (restoredRange) {
+      console.log('📅 Restored persisted date range:', restoredRange);
+      dispatch({ type: 'SET_DATE_RANGE', payload: restoredRange });
+    }
+
+    // Listen for cross-browser sync events
+    const handleSyncEvent = (data: any) => {
+      if (data.newValue && data.key === 'dashboard-date-range') {
+        console.log('📅 Received date range sync from another tab:', data.newValue);
+        dispatch({ type: 'SET_DATE_RANGE', payload: data.newValue });
+      }
+    };
+
+    dateRangeSyncManager.addEventListener('sync', handleSyncEvent);
+
+    return () => {
+      dateRangeSyncManager.removeEventListener('sync', handleSyncEvent);
+    };
+  }, []);
+
+  // Initialize filter synchronization on mount
+  useEffect(() => {
+    console.log('🔍 Initializing filter synchronization...');
+    
+    // Try to restore persisted filters
+    const restoredFilters = filterSyncManager.restoreFilters();
+    if (restoredFilters) {
+      console.log('🔍 Restored persisted filters:', restoredFilters);
+      dispatch({ type: 'SET_FILTERS', payload: restoredFilters });
+    }
+
+    // Listen for cross-browser sync events
+    const handleFilterSyncEvent = (data: any) => {
+      if (data.newValue && data.key === 'dashboard-filters') {
+        console.log('🔍 Received filter sync from another tab:', data.newValue);
+        dispatch({ type: 'SET_FILTERS', payload: data.newValue });
+      }
+    };
+
+    filterSyncManager.addEventListener('sync', handleFilterSyncEvent);
+
+    return () => {
+      filterSyncManager.removeEventListener('sync', handleFilterSyncEvent);
+    };
+  }, []);
+
   // Initial data fetch on mount and when date range changes - Phase B Implementation
   useEffect(() => {
     console.log('📅 Date range changed, fetching fresh data...')
@@ -476,13 +805,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }, [state.dateRange.startDate, state.dateRange.endDate]) // ✅ FIXED: Removed refresh from dependencies
 
   // Expose individual fetch functions for manual use
-  const fetchData = useCallback({
+  const fetchData = useMemo(() => ({
     sessions: fetchSessionData,
     trafficSources: fetchTrafficSourceData,
     topPages: fetchTopPagesData,
     conversions: fetchConversionsData,
     all: refresh
-  }, [fetchSessionData, fetchTrafficSourceData, fetchTopPagesData, fetchConversionsData, refresh])
+  }), [fetchSessionData, fetchTrafficSourceData, fetchTopPagesData, fetchConversionsData, refresh])
 
   // Context value
   const value: DashboardContextType = {
@@ -499,7 +828,18 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     setData,
     refresh,
     reset,
-    fetchData
+    setMCPConnection,
+    connectMCP,
+    disconnectMCP,
+    refreshMCPAuth,
+    fetchData,
+    fetchDataMCP: {
+      sessions: fetchSessionData, // TODO: Implement MCP versions
+      trafficSources: fetchTrafficSourceData,
+      topPages: fetchTopPagesData,
+      conversions: fetchConversionsData,
+      all: refresh
+    }
   }
 
   return (

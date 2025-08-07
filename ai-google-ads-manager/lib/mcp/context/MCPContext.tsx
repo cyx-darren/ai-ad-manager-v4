@@ -8,7 +8,7 @@
 'use client';
 
 import * as React from 'react';
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode, useMemo, useRef } from 'react';
 import { 
   MCPClient, 
   createMCPClient, 
@@ -180,8 +180,8 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
   children, 
   config: userConfig = {} 
 }) => {
-  // Merge user config with defaults
-  const config = { ...defaultConfig, ...userConfig };
+  // Merge user config with defaults (memoized to prevent infinite loop)
+  const config = useMemo(() => ({ ...defaultConfig, ...userConfig }), [userConfig]);
   
   // DIAGNOSTIC: Log component render
   console.log('[MCPProvider] Component rendering', { 
@@ -194,6 +194,9 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
   const [status, setStatus] = useState<MCPConnectionStatus>(defaultStatus);
   const [isInitialized, setIsInitialized] = useState(false);
   const [statusPollingInterval, setStatusPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  
+  // Use ref to prevent multiple initializations
+  const initializationRef = useRef(false);
 
   // DIAGNOSTIC: Force initialization check on every render
   console.log('[MCPProvider] Current state:', { 
@@ -292,7 +295,7 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
       });
       return null;
     }
-  }, [config.useProductionClient, config.clientConfig, debugLog, updateStatus]);
+  }, [config.useProductionClient, debugLog, updateStatus]); // Removed config.clientConfig to reduce dependencies
 
   // Connection management functions
   const connect = useCallback(async () => {
@@ -388,11 +391,13 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
       isInitialized,
       timestamp: new Date().toISOString()
     };
-  }, [config, status, getClientStatus, client, isInitialized]);
+  }, [config, status, getClientStatus, client, isInitialized]); // config is now memoized, safe to include
 
   // Initialize client once on mount
   useEffect(() => {
-    if (!isInitialized && typeof window !== 'undefined') {
+    // Use ref to ensure this only runs once per component lifetime
+    if (!initializationRef.current && typeof window !== 'undefined') {
+      initializationRef.current = true;
       console.log('[MCPProvider] Initializing MCP client...');
       debugLog('Initializing MCP Provider');
       
