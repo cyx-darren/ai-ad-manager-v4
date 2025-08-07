@@ -8,6 +8,11 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
+import { HTTPMCPClient, createHTTPMCPClient } from './httpClient';
+
+// Authentication imports for Phase 6 (Subtask 28.1)
+import { MCPAuthConfig, MCPAuthCredentials, MCPAuthStatus, MCPAuthEvents } from './auth/authTypes';
+import { MCPAuthManager, createMCPAuthManager } from './auth/authManager';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -78,6 +83,10 @@ export interface MCPClientConfig {
   validationConfig?: MCPValidationConfig;
   debugConfig?: MCPDebugConfig;
   enableEnvironmentOverrides?: boolean;
+  
+  // Phase 6: Authentication & Security (Subtask 28.1)
+  authConfig?: MCPAuthConfig;
+  enableAuthentication?: boolean;
 }
 
 /**
@@ -99,6 +108,13 @@ export interface MCPConnectionEvents {
   onConfigChange?: (newConfig: Partial<MCPClientConfig>) => void;
   onStateRestore?: (restoredState: MCPPersistedState) => void;
   onStatePersist?: (state: MCPPersistedState) => void;
+  
+  // Phase 6: Authentication events (Subtask 28.1)
+  onAuthSuccess?: (credentials: MCPAuthCredentials) => void;
+  onAuthFailure?: (error: Error, context?: string) => void;
+  onTokenRefresh?: (newCredentials: MCPAuthCredentials) => void;
+  onTokenExpired?: (expiredCredentials: MCPAuthCredentials) => void;
+  onAuthStatusChange?: (status: MCPAuthStatus) => void;
 }
 
 /**
@@ -218,6 +234,7 @@ export interface MCPClientStatus {
 export class MCPClient {
   private client: Client | null = null;
   private transport: StdioClientTransport | SSEClientTransport | null = null;
+  private httpClient: HTTPMCPClient | null = null;
   private state: MCPConnectionState = MCPConnectionState.DISCONNECTED;
   private previousState: MCPConnectionState = MCPConnectionState.DISCONNECTED;
   private config: Required<MCPClientConfig>;
@@ -257,11 +274,19 @@ export class MCPClient {
   private networkLogs: Array<{ timestamp: number; type: 'request' | 'response' | 'error'; data: any }> = [];
   private currentEnvironment: 'development' | 'staging' | 'production' = 'development';
   private validationErrors: Array<{ timestamp: number; field: string; error: string; value: any }> = [];
+  
+  // Phase 6: Authentication & Security (Subtask 28.1)
+  private authCredentials: MCPAuthCredentials | null = null;
+  private authStatus: MCPAuthStatus | null = null;
+  private authEvents: MCPAuthEvents = {};
+  private lastAuthRefresh: number | null = null;
+  private authRefreshTimeout: NodeJS.Timeout | null = null;
+  private authManager: MCPAuthManager | null = null;
 
   constructor(config: MCPClientConfig = {}, events: MCPConnectionEvents = {}) {
     // Set default configuration with Phase 3 enhancements
     this.config = {
-      serverUrl: config.serverUrl || 'http://localhost:3001',
+      serverUrl: config.serverUrl || process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3004',
       timeout: config.timeout || 30000,
       retryAttempts: config.retryAttempts || 5,
       retryDelay: config.retryDelay || 1000,
@@ -338,10 +363,30 @@ export class MCPClient {
         exportDebugData: config.debugConfig?.exportDebugData ?? false,
         debugStorageKey: config.debugConfig?.debugStorageKey || 'mcp-client-debug'
       },
-      enableEnvironmentOverrides: config.enableEnvironmentOverrides ?? true
+      enableEnvironmentOverrides: config.enableEnvironmentOverrides ?? true,
+      
+      // Phase 6: Authentication & Security defaults (Subtask 28.1)
+      enableAuthentication: config.enableAuthentication ?? false,
+      authConfig: {
+        enableAuthentication: config.authConfig?.enableAuthentication ?? false,
+        tokenRefreshThreshold: config.authConfig?.tokenRefreshThreshold ?? 5, // 5 minutes
+        maxTokenAge: config.authConfig?.maxTokenAge ?? (24 * 60 * 60 * 1000), // 24 hours
+        fallbackToAnonymous: config.authConfig?.fallbackToAnonymous ?? true,
+        strictValidation: config.authConfig?.strictValidation ?? (process.env.NODE_ENV === 'production'),
+        debugAuth: config.authConfig?.debugAuth ?? (process.env.NODE_ENV === 'development')
+      }
     };
 
     this.events = events;
+    
+    // Phase 6: Initialize authentication events (Subtask 28.1)
+    this.authEvents = {
+      onAuthSuccess: events.onAuthSuccess,
+      onAuthFailure: events.onAuthFailure,
+      onTokenRefresh: events.onTokenRefresh,
+      onTokenExpired: events.onTokenExpired,
+      onAuthStatusChange: events.onAuthStatusChange
+    };
 
     // Initialize current backoff with base delay
     this.currentBackoffMs = this.config.retryConfig!.baseDelay!;
@@ -352,6 +397,9 @@ export class MCPClient {
     // Phase 5: Initialize environment and validation
     this.initializeEnvironmentSettings();
     this.currentEnvironment = this.config.environmentConfig!.environment;
+
+    // Phase 6: Initialize authentication (Subtask 28.1 - Phase 2)
+    this.initializeAuthentication();
 
     // Bind methods to preserve context
     this.connect = this.connect.bind(this);
@@ -592,6 +640,46 @@ export class MCPClient {
   }
 
   /**
+   * Initialize authentication system (Subtask 28.1 - Phase 2)
+   */
+  private initializeAuthentication(): void {
+    if (!this.config.enableAuthentication || !this.config.authConfig) {
+      this.enhancedLog('debug', 'Authentication disabled or not configured');
+      return;
+    }
+
+    try {
+      // Create authentication manager with config and events
+      this.authManager = createMCPAuthManager(this.config.authConfig, this.authEvents);
+      
+      // Initialize auth status
+      this.authStatus = this.authManager.getAuthStatus();
+      this.authCredentials = this.authManager.getCredentials();
+
+      this.enhancedLog('info', 'Authentication system initialized', {
+        enableAuthentication: this.config.authConfig.enableAuthentication,
+        strictValidation: this.config.authConfig.strictValidation,
+        tokenRefreshThreshold: this.config.authConfig.tokenRefreshThreshold
+      });
+
+      // Fire authentication status change event
+      this.authEvents.onAuthStatusChange?.(this.authStatus);
+
+    } catch (error) {
+      this.enhancedLog('error', 'Failed to initialize authentication system', { error });
+      
+      // If strict validation is disabled, continue without auth
+      if (!this.config.authConfig?.strictValidation) {
+        this.enhancedLog('warn', 'Continuing without authentication due to lenient config');
+        this.authStatus = { isAuthenticated: false, hasValidToken: false };
+      } else {
+        // Re-throw error for strict validation
+        throw error;
+      }
+    }
+  }
+
+  /**
    * Enhanced logging with Phase 4 features
    */
   private enhancedLog(level: 'debug' | 'info' | 'warn' | 'error', message: string, context?: any): void {
@@ -755,13 +843,55 @@ export class MCPClient {
   // ============================================================================
 
   /**
-   * Establish connection to MCP server (Enhanced for Phase 4 & 5)
+   * Establish connection to MCP server (Simplified HTTP approach)
    */
   async connect(): Promise<void> {
     if (this.state === MCPConnectionState.CONNECTED || this.state === MCPConnectionState.CONNECTING) {
       this.enhancedLog('debug', 'Already connected or connecting', { currentState: this.state });
       return;
     }
+
+    // Use simple HTTP client for now
+    if (this.config.serverUrl.startsWith('http')) {
+      return this.connectViaHTTP();
+    }
+
+    // Fallback to SSE transport for other protocols
+    return this.connectViaSSE();
+  }
+
+  /**
+   * Connect using simple HTTP API calls
+   */
+  private async connectViaHTTP(): Promise<void> {
+    this.setState(MCPConnectionState.CONNECTING);
+    
+    try {
+      this.httpClient = createHTTPMCPClient(this.config.serverUrl);
+      await this.httpClient.connect();
+      
+      this.setState(MCPConnectionState.CONNECTED);
+      this.connectedAt = new Date();
+      this.reconnectAttempts = 0;
+      
+      this.events.onConnect?.({
+        duration: 0, // HTTP connection is immediate
+        attempt: this.reconnectAttempts + 1
+      });
+      
+      this.enhancedLog('info', 'HTTP MCP connection established');
+      
+    } catch (error) {
+      this.setState(MCPConnectionState.ERROR);
+      this.events.onError?.(error as Error, 'HTTP connection');
+      throw error;
+    }
+  }
+
+  /**
+   * Connect using SSE transport (original method)
+   */
+  private async connectViaSSE(): Promise<void> {
 
     // Phase 5: Validate configuration before connecting
     const validation = this.validateConfiguration();
@@ -837,6 +967,7 @@ export class MCPClient {
       // Create new transport based on server URL
       if (this.config.serverUrl.startsWith('http')) {
         // HTTP/SSE transport for web connections
+        // Use the base URL without appending /mcp/connect - let SSEClientTransport handle it
         this.transport = new SSEClientTransport(new URL(this.config.serverUrl));
       } else {
         // For now, default to SSE transport
@@ -1030,6 +1161,12 @@ export class MCPClient {
       if (this.transport) {
         await this.transport.close();
         this.transport = null;
+      }
+
+      // Close HTTP client
+      if (this.httpClient) {
+        await this.httpClient.disconnect();
+        this.httpClient = null;
       }
 
       // Phase 4: Final state persistence before cleanup
@@ -1344,6 +1481,601 @@ export class MCPClient {
       clearInterval(this.healthMonitoringInterval);
       this.healthMonitoringInterval = null;
       this.log('Health monitoring stopped');
+    }
+  }
+
+  // ============================================================================
+  // AUTHENTICATION BRIDGE (Subtask 28.1 - Phase 2)
+  // ============================================================================
+
+  /**
+   * Initialize authentication with Supabase session
+   * Core token bridge implementation
+   */
+  async authenticateWithSupabase(session: any): Promise<void> {
+    if (!this.authManager) {
+      throw new Error('Authentication system not initialized. Enable authentication in config.');
+    }
+
+    try {
+      this.enhancedLog('info', 'Authenticating MCP client with Supabase session', {
+        hasSession: !!session,
+        sessionUserId: session?.user?.id,
+        sessionEmail: session?.user?.email
+      });
+
+      // Use auth manager to initialize authentication
+      await this.authManager.initializeAuth(session);
+
+      // Update local auth state
+      this.authStatus = this.authManager.getAuthStatus();
+      this.authCredentials = this.authManager.getCredentials();
+      this.lastAuthRefresh = Date.now();
+
+      // Log authentication success
+      this.enhancedLog('info', 'MCP authentication successful', {
+        isAuthenticated: this.authStatus?.isAuthenticated,
+        hasValidToken: this.authStatus?.hasValidToken,
+        userId: this.authCredentials?.userId
+      });
+
+      // Fire success event
+      this.authEvents.onAuthSuccess?.(this.authCredentials!);
+
+    } catch (error) {
+      this.enhancedLog('error', 'Failed to authenticate with Supabase session', { error });
+      
+      // Fire failure event
+      this.authEvents.onAuthFailure?.(error as Error);
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Update authentication with new Supabase session
+   * Handles token refresh and session updates
+   */
+  async updateAuthentication(session: any): Promise<void> {
+    if (!this.authManager) {
+      throw new Error('Authentication system not initialized');
+    }
+
+    try {
+      this.enhancedLog('debug', 'Updating MCP authentication', {
+        hadCredentials: !!this.authCredentials,
+        hasNewSession: !!session
+      });
+
+      // Use auth manager to update authentication
+      await this.authManager.updateAuth(session);
+
+      // Update local auth state
+      this.authStatus = this.authManager.getAuthStatus();
+      this.authCredentials = this.authManager.getCredentials();
+      this.lastAuthRefresh = Date.now();
+
+      // Fire token refresh event
+      if (this.authCredentials) {
+        this.authEvents.onTokenRefresh?.(this.authCredentials);
+      }
+
+    } catch (error) {
+      this.enhancedLog('error', 'Failed to update authentication', { error });
+      throw error;
+    }
+  }
+
+  /**
+   * Clear authentication and logout (legacy method - use coordinatedLogout for Phase 4)
+   */
+  clearAuthentication(): void {
+    this.coordinatedLogout('internal');
+  }
+
+  // ============================================================================
+  // PHASE 4: COORDINATED LOGOUT & CLEANUP SYSTEM
+  // ============================================================================
+
+  /**
+   * Coordinated logout across both Supabase and MCP systems (Phase 4)
+   */
+  async coordinatedLogout(source: 'supabase' | 'mcp' | 'user' | 'internal' = 'user'): Promise<void> {
+    if (!this.authManager) {
+      this.enhancedLog('warn', 'Authentication system not initialized during logout');
+      return;
+    }
+
+    const logoutId = `mcp_logout_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    this.enhancedLog('info', 'Starting coordinated MCP logout', {
+      source,
+      logoutId,
+      isAuthenticated: this.authStatus?.isAuthenticated,
+      hasCredentials: !!this.authCredentials
+    });
+
+    try {
+      // Phase 4: Enhanced coordinated logout sequence
+      await this.performMCPLogoutSequence(source, logoutId);
+
+      this.enhancedLog('info', 'Coordinated MCP logout completed successfully', { logoutId });
+
+    } catch (error) {
+      this.enhancedLog('error', 'Logout error, performing force cleanup', { 
+        logoutId, 
+        error: error instanceof Error ? error.message : error 
+      });
+
+      // Force cleanup even if coordinated logout fails
+      await this.forceAuthCleanup();
+      throw error;
+    }
+  }
+
+  /**
+   * Perform MCP logout sequence with session invalidation (Phase 4)
+   */
+  private async performMCPLogoutSequence(source: string, logoutId: string): Promise<void> {
+    // Step 1: Disable monitoring before logout
+    this.disableAuthRefreshMonitoring();
+
+    // Step 2: Coordinate with auth manager
+    await this.authManager!.coordinatedLogout(source as any);
+
+    // Step 3: Invalidate MCP connections
+    await this.invalidateMCPConnections(logoutId);
+
+    // Step 4: Clean MCP client state
+    this.cleanMCPClientState();
+
+    // Step 5: Fire MCP logout events
+    this.fireMCPLogoutEvents(source);
+  }
+
+  /**
+   * Invalidate active MCP connections during logout (Phase 4)
+   */
+  private async invalidateMCPConnections(logoutId: string): Promise<void> {
+    this.enhancedLog('debug', 'Invalidating MCP connections', { logoutId });
+
+    try {
+      // Disconnect from MCP server if connected
+      if (this.state === MCPConnectionState.CONNECTED) {
+        this.enhancedLog('info', 'Disconnecting from MCP server during logout');
+        await this.disconnect();
+      }
+
+      // Clear any pending connection attempts
+      if (this.reconnectTimeout) {
+        clearTimeout(this.reconnectTimeout);
+        this.reconnectTimeout = null;
+      }
+
+      // Clear connection pool if enabled
+      if (this.config.poolConfig?.enablePooling) {
+        await this.clearPool();
+      }
+
+    } catch (error) {
+      this.enhancedLog('warn', 'Error during MCP connection invalidation', { 
+        logoutId, 
+        error: error instanceof Error ? error.message : error 
+      });
+      // Continue with logout even if connection cleanup fails
+    }
+  }
+
+  /**
+   * Clean MCP client authentication state (Phase 4)
+   */
+  private cleanMCPClientState(): void {
+    this.enhancedLog('debug', 'Cleaning MCP client authentication state');
+
+    // Clear authentication credentials and status
+    this.authCredentials = null;
+    this.authStatus = { isAuthenticated: false, hasValidToken: false };
+    this.lastAuthRefresh = null;
+
+    // Clear all authentication timeouts
+    if (this.authRefreshTimeout) {
+      clearTimeout(this.authRefreshTimeout);
+      this.authRefreshTimeout = null;
+    }
+
+    // Reset authentication events
+    this.authEvents = {
+      onAuthSuccess: this.authEvents.onAuthSuccess,
+      onAuthFailure: this.authEvents.onAuthFailure,
+      onTokenRefresh: this.authEvents.onTokenRefresh,
+      onTokenExpired: this.authEvents.onTokenExpired,
+      onAuthStatusChange: this.authEvents.onAuthStatusChange
+    };
+  }
+
+  /**
+   * Fire MCP logout events (Phase 4)
+   */
+  private fireMCPLogoutEvents(source: string): void {
+    this.enhancedLog('debug', 'Firing MCP logout events', { source });
+
+    // Fire auth status change event
+    this.authEvents.onAuthStatusChange?.(this.getAuthenticationStatus());
+
+    // Note: Could add custom logout events here if needed
+    // this.events.onLogout?.(source);
+  }
+
+  /**
+   * Force authentication cleanup for partial logout scenarios (Phase 4)
+   */
+  async forceAuthCleanup(): Promise<void> {
+    this.enhancedLog('warn', 'Performing force authentication cleanup');
+
+    try {
+      // Force cleanup auth manager
+      if (this.authManager) {
+        this.authManager.forceCleanup();
+      }
+
+      // Force clean MCP client state
+      this.cleanMCPClientState();
+
+      // Force disconnect if needed
+      if (this.state === MCPConnectionState.CONNECTED) {
+        try {
+          await this.disconnect();
+        } catch (error) {
+          this.enhancedLog('warn', 'Force disconnect failed', { error });
+        }
+      }
+
+      this.enhancedLog('info', 'Force authentication cleanup completed');
+
+    } catch (error) {
+      this.enhancedLog('error', 'Error during force cleanup', { error });
+      // Swallow errors during force cleanup
+    }
+  }
+
+  /**
+   * Handle partial logout scenarios (Phase 4)
+   */
+  async handlePartialLogout(
+    scenario: 'network_error' | 'timeout' | 'server_error' | 'connection_lost',
+    originalError?: Error
+  ): Promise<void> {
+    this.enhancedLog('warn', 'Handling partial logout scenario', { 
+      scenario, 
+      originalError: originalError?.message 
+    });
+
+    switch (scenario) {
+      case 'network_error':
+        // Network issue - clean local state, keep connection if possible
+        await this.forceAuthCleanup();
+        break;
+
+      case 'timeout':
+        // Timeout - force immediate cleanup
+        await this.forceAuthCleanup();
+        break;
+
+      case 'server_error':
+        // Server error - try graceful logout, fallback to force cleanup
+        try {
+          await this.coordinatedLogout('internal');
+        } catch {
+          await this.forceAuthCleanup();
+        }
+        break;
+
+      case 'connection_lost':
+        // Connection lost - clean state but prepare for reconnection
+        await this.forceAuthCleanup();
+        break;
+    }
+
+    // Delegate to auth manager as well
+    if (this.authManager) {
+      await this.authManager.handlePartialLogout(
+        scenario === 'connection_lost' ? 'network_error' : scenario
+      );
+    }
+  }
+
+  /**
+   * Logout with Supabase coordination (Phase 4)
+   */
+  async logoutWithSupabaseCoordination(supabaseLogoutFn?: () => Promise<void>): Promise<void> {
+    this.enhancedLog('info', 'Starting logout with Supabase coordination');
+
+    try {
+      // Step 1: Coordinate MCP logout
+      await this.coordinatedLogout('supabase');
+
+      // Step 2: Call Supabase logout if provided
+      if (supabaseLogoutFn) {
+        this.enhancedLog('debug', 'Calling provided Supabase logout function');
+        await supabaseLogoutFn();
+      }
+
+      this.enhancedLog('info', 'Coordinated logout with Supabase completed');
+
+    } catch (error) {
+      this.enhancedLog('error', 'Error during coordinated logout', { error });
+      
+      // Ensure MCP is cleaned up even if Supabase logout fails
+      await this.forceAuthCleanup();
+      throw error;
+    }
+  }
+
+  /**
+   * Get comprehensive logout status (Phase 4)
+   */
+  getLogoutStatus(): {
+    mcpStatus: {
+      isLoggedOut: boolean;
+      hasActiveRefresh: boolean;
+      connectionState: MCPConnectionState;
+      hasStoredCredentials: boolean;
+    };
+    authManagerStatus?: {
+      isLoggedOut: boolean;
+      hasActiveRefresh: boolean;
+      hasStoredCredentials: boolean;
+      timeSinceLastRefresh: number | null;
+    };
+  } {
+    const result = {
+      mcpStatus: {
+        isLoggedOut: !this.authCredentials && this.authStatus?.isAuthenticated === false,
+        hasActiveRefresh: !!this.authRefreshTimeout,
+        connectionState: this.state,
+        hasStoredCredentials: !!this.authCredentials
+      },
+      authManagerStatus: this.authManager?.getLogoutStatus()
+    };
+
+    return result;
+  }
+
+  /**
+   * Get current authentication status
+   */
+  getAuthenticationStatus(): MCPAuthStatus {
+    return this.authStatus || { isAuthenticated: false, hasValidToken: false };
+  }
+
+  /**
+   * Get current authentication credentials
+   */
+  getAuthenticationCredentials(): MCPAuthCredentials | null {
+    return this.authCredentials;
+  }
+
+  /**
+   * Check if authentication is valid and not expired
+   */
+  isAuthenticated(): boolean {
+    return this.authStatus?.isAuthenticated === true && this.authStatus?.hasValidToken === true;
+  }
+
+  /**
+   * Get authentication headers for MCP requests
+   */
+  getAuthHeaders(): Record<string, string> {
+    if (!this.authManager) {
+      return {};
+    }
+    return this.authManager.getAuthHeaders();
+  }
+
+  /**
+   * Force refresh authentication tokens
+   */
+  async refreshAuthentication(newSession?: any): Promise<void> {
+    if (!this.authManager) {
+      throw new Error('Authentication system not initialized');
+    }
+
+    try {
+      this.enhancedLog('info', 'Refreshing MCP authentication');
+      
+      await this.authManager.refreshAuth(newSession);
+      
+      // Update local state
+      this.authStatus = this.authManager.getAuthStatus();
+      this.authCredentials = this.authManager.getCredentials();
+      this.lastAuthRefresh = Date.now();
+
+    } catch (error) {
+      this.enhancedLog('error', 'Failed to refresh authentication', { error });
+      throw error;
+    }
+  }
+
+  // ============================================================================
+  // PHASE 3: SYNCHRONIZED REFRESH INTEGRATION
+  // ============================================================================
+
+  /**
+   * Synchronized refresh with Supabase timing (Phase 3)
+   * Ensures MCP and Supabase refresh cycles are coordinated
+   */
+  async synchronizeAuthRefresh(supabaseSession?: any): Promise<void> {
+    if (!this.authManager) {
+      throw new Error('Authentication system not initialized');
+    }
+
+    try {
+      this.enhancedLog('info', 'Synchronizing authentication refresh with Supabase', {
+        hasSupabaseSession: !!supabaseSession,
+        currentAuthStatus: this.authStatus?.isAuthenticated,
+        lastRefresh: this.lastAuthRefresh ? new Date(this.lastAuthRefresh).toISOString() : null
+      });
+
+      // Phase 3: Coordinated refresh logic
+      if (supabaseSession) {
+        // Supabase provided new session - update MCP accordingly
+        await this.updateAuthentication(supabaseSession);
+      } else {
+        // No new session - check if refresh is needed
+        const needsRefresh = this.authStatus?.hasValidToken === false || 
+                           this.isAuthenticationExpiringSoon();
+        
+        if (needsRefresh) {
+          await this.refreshAuthentication();
+        }
+      }
+
+      // Clear any pending refresh timeout to avoid double-refresh
+      if (this.authRefreshTimeout) {
+        clearTimeout(this.authRefreshTimeout);
+        this.authRefreshTimeout = null;
+      }
+
+      this.enhancedLog('info', 'Authentication synchronization completed');
+
+    } catch (error) {
+      this.enhancedLog('error', 'Failed to synchronize authentication refresh', { error });
+      throw error;
+    }
+  }
+
+  /**
+   * Check if authentication is expiring soon (Phase 3)
+   */
+  private isAuthenticationExpiringSoon(): boolean {
+    if (!this.authCredentials) {
+      return false;
+    }
+
+    const now = Date.now();
+    const expiryTime = this.authCredentials.expiresAt;
+    const timeUntilExpiry = expiryTime - now;
+    
+    // Consider "expiring soon" as within 5 minutes (300000 ms)
+    const refreshThresholdMs = 5 * 60 * 1000;
+    
+    return timeUntilExpiry <= refreshThresholdMs;
+  }
+
+  /**
+   * Enable automatic refresh monitoring (Phase 3)
+   * Sets up periodic checks for authentication status
+   */
+  enableAuthRefreshMonitoring(intervalMs: number = 60000): void {
+    if (!this.authManager) {
+      throw new Error('Authentication system not initialized');
+    }
+
+    // Clear existing monitoring
+    this.disableAuthRefreshMonitoring();
+
+    this.authRefreshTimeout = setInterval(() => {
+      this.performRefreshCheck();
+    }, intervalMs) as any;
+
+    this.enhancedLog('info', 'Authentication refresh monitoring enabled', {
+      intervalMs,
+      intervalMinutes: Math.round(intervalMs / 60000)
+    });
+  }
+
+  /**
+   * Disable automatic refresh monitoring (Phase 3)
+   */
+  disableAuthRefreshMonitoring(): void {
+    if (this.authRefreshTimeout) {
+      clearInterval(this.authRefreshTimeout);
+      this.authRefreshTimeout = null;
+      this.enhancedLog('info', 'Authentication refresh monitoring disabled');
+    }
+  }
+
+  /**
+   * Perform periodic refresh check (Phase 3)
+   */
+  private async performRefreshCheck(): Promise<void> {
+    if (!this.authManager || !this.authCredentials) {
+      return;
+    }
+
+    try {
+      const authStatus = this.authManager.getAuthStatus();
+      
+      // Check if token needs refresh
+      if (!authStatus.hasValidToken || this.isAuthenticationExpiringSoon()) {
+        this.enhancedLog('debug', 'Periodic refresh check detected expired/expiring token');
+        
+        // Fire token expired event
+        this.authEvents.onTokenExpired?.(this.authCredentials);
+        
+        // Attempt refresh (this will be handled by the auth manager)
+        // The auth manager will handle retry logic and failure recovery
+      }
+      
+    } catch (error) {
+      this.enhancedLog('warn', 'Error during periodic refresh check', { error });
+    }
+  }
+
+  /**
+   * Get detailed authentication timing information (Phase 3)
+   */
+  getAuthTiming(): {
+    isAuthenticated: boolean;
+    hasValidToken: boolean;
+    timeUntilExpiry: number;
+    isExpiringSoon: boolean;
+    lastRefresh: number | null;
+    nextRefreshCheck?: number;
+  } {
+    const authStatus = this.getAuthenticationStatus();
+    const credentials = this.getAuthenticationCredentials();
+    
+    const result = {
+      isAuthenticated: authStatus.isAuthenticated,
+      hasValidToken: authStatus.hasValidToken,
+      timeUntilExpiry: credentials ? credentials.expiresAt - Date.now() : 0,
+      isExpiringSoon: this.isAuthenticationExpiringSoon(),
+      lastRefresh: this.lastAuthRefresh
+    };
+
+    return result;
+  }
+
+  /**
+   * Handle authentication failure with recovery (Phase 3)
+   */
+  async handleAuthFailureWithRecovery(error: Error, retryCount: number = 0): Promise<void> {
+    const maxRetries = 3;
+    
+    this.enhancedLog('warn', `Authentication failure (attempt ${retryCount + 1}/${maxRetries})`, {
+      error: error.message,
+      retryCount
+    });
+
+    if (retryCount < maxRetries) {
+      // Exponential backoff retry
+      const delayMs = Math.min(1000 * Math.pow(2, retryCount), 10000);
+      
+      setTimeout(async () => {
+        try {
+          await this.refreshAuthentication();
+          this.enhancedLog('info', 'Authentication recovery successful');
+        } catch (retryError) {
+          await this.handleAuthFailureWithRecovery(retryError as Error, retryCount + 1);
+        }
+      }, delayMs);
+      
+    } else {
+      // Max retries exceeded - clear authentication
+      this.enhancedLog('error', 'Authentication recovery failed - clearing auth state');
+      this.clearAuthentication();
+      this.authEvents.onAuthFailure?.(error);
     }
   }
 
@@ -1852,6 +2584,36 @@ export class MCPClient {
 
     this.connectionPool = [];
   }
+
+  /**
+   * List available tools
+   */
+  async listTools(): Promise<any> {
+    if (this.httpClient && this.httpClient.isConnected()) {
+      return await this.httpClient.listTools();
+    }
+    
+    if (this.client) {
+      return await this.client.listTools();
+    }
+    
+    throw new Error('No MCP connection available');
+  }
+
+  /**
+   * Call a tool
+   */
+  async callTool(name: string, args: any = {}): Promise<any> {
+    if (this.httpClient && this.httpClient.isConnected()) {
+      return await this.httpClient.callTool(name, args);
+    }
+    
+    if (this.client) {
+      return await this.client.callTool({ name, arguments: args });
+    }
+    
+    throw new Error('No MCP connection available');
+  }
 }
 
 // ============================================================================
@@ -1873,7 +2635,7 @@ export function createMCPClient(
  */
 export function createProductionMCPClient(events?: MCPConnectionEvents): MCPClient {
   return new MCPClient({
-    serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3001',
+    serverUrl: process.env.NEXT_PUBLIC_MCP_SERVER_URL || 'http://localhost:3004',
     timeout: 30000,
     retryAttempts: 5,
     retryDelay: 2000,

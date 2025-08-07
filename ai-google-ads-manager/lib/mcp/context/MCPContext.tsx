@@ -183,11 +183,24 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
   // Merge user config with defaults
   const config = { ...defaultConfig, ...userConfig };
   
+  // DIAGNOSTIC: Log component render
+  console.log('[MCPProvider] Component rendering', { 
+    userConfig, 
+    enableDebugLogging: config.enableDebugLogging 
+  });
+  
   // State management
   const [client, setClient] = useState<MCPClient | null>(null);
   const [status, setStatus] = useState<MCPConnectionStatus>(defaultStatus);
   const [isInitialized, setIsInitialized] = useState(false);
   const [statusPollingInterval, setStatusPollingInterval] = useState<NodeJS.Timeout | null>(null);
+
+  // DIAGNOSTIC: Force initialization check on every render
+  console.log('[MCPProvider] Current state:', { 
+    isInitialized, 
+    hasClient: !!client,
+    autoConnect: config.autoConnect 
+  });
 
   // Debug logging utility
   const debugLog = useCallback((message: string, data?: any) => {
@@ -377,19 +390,31 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
     };
   }, [config, status, getClientStatus, client, isInitialized]);
 
-  // Initialize client on mount
+  // Initialize client once on mount
   useEffect(() => {
-    if (!isInitialized) {
+    if (!isInitialized && typeof window !== 'undefined') {
+      console.log('[MCPProvider] Initializing MCP client...');
       debugLog('Initializing MCP Provider');
+      
       const newClient = createClient();
       
       if (newClient && config.autoConnect) {
-        connect();
+        console.log('[MCPProvider] Auto-connecting...');
+        // Add a small delay to ensure everything is ready
+        setTimeout(() => {
+          newClient.connect().then(() => {
+            console.log('[MCPProvider] Connection successful!');
+          }).catch((error) => {
+            console.error('[MCPProvider] Connection failed:', error);
+          });
+        }, 500);
       }
       
       setIsInitialized(true);
+      console.log('[MCPProvider] Initialization complete');
     }
-  }, [isInitialized, createClient, connect, config.autoConnect, debugLog]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - run only once
 
   // Set up status polling
   useEffect(() => {
